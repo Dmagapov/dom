@@ -24,3 +24,4 @@ body.has-tabbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 78px)}
 .sheet .sz{margin-top:12px;font:700 16px "Golos Text",system-ui,sans-serif;color:#2242AA;display:block;text-decoration:none;padding:8px 0}
 .sheet .rooms{display:flex;flex-wrap:wrap;gap:8px}
 .sheet .rooms a{font:500 15px "Golos Text",system-ui,sans-serif;color:#1c2740;background:#f0f4fa;border-radius:12px;padding:10px 14px;text-decoration:none}
+.tabbar button i{font-style:normal}
