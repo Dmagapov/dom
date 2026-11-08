@@ -25,3 +25,6 @@ body.has-tabbar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 78px)}
 .sheet .rooms{display:flex;flex-wrap:wrap;gap:8px}
 .sheet .rooms a{font:500 15px "Golos Text",system-ui,sans-serif;color:#1c2740;background:#f0f4fa;border-radius:12px;padding:10px 14px;text-decoration:none}
 .tabbar button i{font-style:normal}
+.subbar{align-items:center}.sb-fl{margin-left:auto;display:flex;gap:4px}.sb-fl button{font-size:20px;line-height:1;width:40px;height:36px;border-radius:10px;border:1px solid #e1e7f1;background:#fff;opacity:.5;filter:grayscale(.4);cursor:pointer}.sb-fl button.on{opacity:1;filter:none;box-shadow:0 0 0 2px #2242AA inset}
+.sb-note{margin:-4px 0 10px;padding:8px 12px;border-radius:10px;background:#fff6d6;color:#6b5400;font:14px system-ui,sans-serif}
+@media(max-width:420px){.subbar a{padding:10px 12px;font-size:14px}}

@@ -26,10 +26,20 @@ document.addEventListener("click",function(e){
 // ---------- sub-pages: top bar ----------
 function back(e){e.preventDefault();var r=document.referrer;if(history.length>1&&r&&r.indexOf(location.origin)===0)history.back();else location.href=HOME}
 if(SUB){
-  var bar=el('<div class="subbar"><a href="'+HOME+'" class="sb-back">← Назад</a><a href="'+HOME+'" class="sb-home">⌂ Все вещи</a></div>');
+  var SL="ru";try{SL=localStorage.getItem("dom_lang")||"ru"}catch(e){}
+  var ST={back:["← Назад","← Back","← Takaisin"],home:["⌂ Все вещи","⌂ All items","⌂ Kaikki"],nt:["","Translation not available yet — showing Russian.","Käännöstä ei vielä ole — näytetään venäjäksi."]};
+  var si=function(){return SL==="en"?1:SL==="fi"?2:0};
+  var bar=el('<div class="subbar"><a href="'+HOME+'" class="sb-back"></a><a href="'+HOME+'" class="sb-home"></a><span class="sb-fl"><button type="button" data-lang="ru">🇷🇺</button><button type="button" data-lang="en">🇬🇧</button><button type="button" data-lang="fi">🇫🇮</button></span></div>');
+  var applyL=function(){var bl=document.querySelectorAll(".w[data-l]"),has=false;bl.forEach(function(b){if(b.dataset.l===SL)has=true});
+    bl.forEach(function(b){b.style.display=(b.dataset.l===(has?SL:"ru"))?"":"none"});
+    var nt=document.querySelector(".sb-note");if(!has&&SL!=="ru"&&bl.length){if(!nt){nt=el('<div class="sb-note"></div>');bar.after(nt)}nt.textContent=ST.nt[si()];nt.style.display=""}else if(nt)nt.style.display="none";
+    bar.querySelector(".sb-back").textContent=ST.back[si()];bar.querySelector(".sb-home").textContent=ST.home[si()];
+    bar.querySelectorAll(".sb-fl button").forEach(function(b){b.classList.toggle("on",b.dataset.lang===SL)});document.documentElement.lang=SL};
+  bar.addEventListener("click",function(e){var b=e.target.closest(".sb-fl button");if(!b)return;SL=b.dataset.lang;try{localStorage.setItem("dom_lang",SL)}catch(x){}applyL()});
   bar.querySelector(".sb-back").onclick=back;
   document.body.insertBefore(bar,document.body.firstChild);
   document.querySelectorAll("a.back").forEach(function(x){x.style.display="none"});
+  applyL();
   return;
 }
 // ---------- main page: bottom tab bar + rooms sheet ----------
