@@ -15,7 +15,7 @@ function openImg(src,title){
   try{history.pushState({lb:1},"")}catch(e){}
 }
 function closeImg(silent){if(!LB)return;LB.remove();LB=null;document.documentElement.style.overflow=""}
-window.addEventListener("popstate",function(){if(LB)closeImg();if(SH)closeSheet()});
+window.addEventListener("popstate",function(){if(LB)closeImg()});
 var IMG=/\.(png|jpe?g|webp|gif)(\?.*)?$/i;
 document.addEventListener("click",function(e){
   var a=e.target.closest("a[href]");
@@ -45,7 +45,7 @@ if(SUB){
 // ---------- main page: bottom tab bar + rooms sheet ----------
 var SH=null,BG=null;
 function q(s){return document.querySelector(s)}
-var TL={s:["Поиск","Search","Haku"],r:["Где что","Where is it","Missä mikin"],u:["Наверх","Top","Ylös"]};
+var TL={h:["Главная","Home","Etusivu"],s:["Поиск","Search","Haku"],r:["Где что","Where is it","Missä mikin"],u:["Наверх","Top","Ylös"]};
 function L(){try{return LANG}catch(e){return "ru"}}
 function T(k){var l=L();return TL[k][l==="en"?1:l==="fi"?2:0]}
 window.navRelabel=function(){document.querySelectorAll(".tabbar button").forEach(function(b){var i=b.querySelector("i");if(i)i.textContent=T(b.dataset.t)})};
@@ -53,21 +53,20 @@ function clearSearch(){var i=q("#q");if(i&&i.value){i.value="";i.dispatchEvent(n
 function closeSheet(){if(SH){SH.remove();BG.remove();SH=BG=null}}
 function openSheet(){
   clearSearch();
-  var h="",hs=document.querySelectorAll("#browse h2, #browse h3"),n=0;
-  hs.forEach(function(x){if(!x.id)x.id="nav-"+(n++);var t=(x.childNodes[0]&&x.childNodes[0].textContent||x.textContent).trim();
-    if(x.tagName==="H2")h+=(h?'</div>':'')+'<a class="sz" href="#'+x.id+'">'+t+'</a><div class="rooms">';
-    else if(t)h+='<a href="#'+x.id+'">'+t+'</a>'});
-  h+='</div>';h=h.replace(/<div class="rooms"><\/div>/g,"");
+  var R=(window.ROOMS_NAV?window.ROOMS_NAV():[]),h="";
+  R.forEach(function(z){h+='<a class="sz" href="#v='+z.zi+'">'+z.z+'</a><div class="rooms">';
+    if(z.rooms.length>1)z.rooms.forEach(function(r){h+='<a href="#v='+z.zi+'/'+r.ri+'">'+r.r+'</a>'});h+='</div>'});
+  h=h.replace(/<div class="rooms"><\/div>/g,"");
   BG=el('<div class="sheet-bg"></div>');SH=el('<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div class="sh-h"><b>'+T('r')+'</b><button type="button">✕</button></div>'+h+'</div>');
-  BG.onclick=SH.querySelector(".sh-h button").onclick=function(){history.state&&history.state.sh?history.back():closeSheet()};
-  SH.addEventListener("click",function(e){var a=e.target.closest("a[href^='#']");if(!a)return;e.preventDefault();var t=document.getElementById(a.getAttribute("href").slice(1));
-    closeSheet();if(history.state&&history.state.sh)history.back();setTimeout(function(){t&&t.scrollIntoView({block:"start",behavior:"smooth"})},60)});
-  document.body.appendChild(BG);document.body.appendChild(SH);try{history.pushState({sh:1},"")}catch(e){}
+  BG.onclick=SH.querySelector(".sh-h button").onclick=function(){closeSheet()};
+  SH.addEventListener("click",function(e){var a=e.target.closest("a[href^='#v=']");if(!a)return;closeSheet()});
+  document.body.appendChild(BG);document.body.appendChild(SH);
 }
-var tb=el('<nav class="tabbar" aria-label="Меню"><button type="button" data-t="s"><span>🔍</span><i>Поиск</i></button><button type="button" data-t="r"><span>🧭</span><i>Где что</i></button><button type="button" data-t="u"><span>⬆️</span><i>Наверх</i></button></nav>');
+var tb=el('<nav class="tabbar" aria-label="Меню"><button type="button" data-t="h"><span>🏠</span><i>Главная</i></button><button type="button" data-t="s"><span>🔍</span><i>Поиск</i></button><button type="button" data-t="r"><span>🧭</span><i>Где что</i></button><button type="button" data-t="u"><span>⬆️</span><i>Наверх</i></button></nav>');
 tb.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var t=b.dataset.t;
   if(t==="s"){clearSearch();scrollTo({top:0,behavior:"smooth"});setTimeout(function(){var i=q("#q");i&&i.focus()},350)}
   if(t==="r")openSheet();
-  if(t==="u"){scrollTo({top:0,behavior:"smooth"})}});
+  if(t==="u"){scrollTo({top:0,behavior:"smooth"})}
+  if(t==="h"){clearSearch();location.hash="";scrollTo(0,0)}});
 document.body.appendChild(tb);document.body.classList.add("has-tabbar");navRelabel();
 })();
