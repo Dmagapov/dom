@@ -222,7 +222,7 @@ bin(-46,8);
 const WX=416;  // real: LiDAR scan 09.11 — right wall 4.04–4.16 m from the bin end
 // single tall window (photo 09.11): ivory frame, big upper sash + lower sash, blinds between the panes
 {const IV=M(0xf1ecdf,{roughness:.45});const z0=70,z1=166,y0=10,y1=214,ym=70;
- const bl=(dark)=>canvasTex(256,256,(c,W,H)=>{c.fillStyle=dark?"#5d6468":"#b9c7c3";c.fillRect(0,0,W,H);for(let y=0;y<H;y+=9){c.fillStyle=dark?"#3f4548":"#cfdad6";c.fillRect(0,y,W,5);c.fillStyle="rgba(0,0,0,.12)";c.fillRect(0,y+5,W,1)}});
+ const bl=()=>canvasTex(256,256,(c,W,H)=>{const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,"#cfe0ea");g.addColorStop(.55,"#9fb7c6");g.addColorStop(1,"#7f97a6");c.fillStyle=g;c.fillRect(0,0,W,H);c.fillStyle="rgba(255,255,255,.35)";c.beginPath();c.moveTo(W*.15,0);c.lineTo(W*.35,0);c.lineTo(W*.05,H);c.lineTo(0,H*.8);c.fill()});   // plain glass, two sashes
  const pane=(za,zb,ya,yb,dark)=>{const p=new THREE.Mesh(new THREE.PlaneGeometry(zb-za,yb-ya),new THREE.MeshStandardMaterial({map:bl(dark),roughness:.35,metalness:.05}));p.rotation.y=-Math.PI/2;p.position.set(WX-3,(ya+yb)/2,(za+zb)/2);S.add(p);
    const g=new THREE.Mesh(new THREE.PlaneGeometry(zb-za,yb-ya),new THREE.MeshPhysicalMaterial({color:0xffffff,transparent:true,opacity:.12,roughness:.02,clearcoat:1}));g.rotation.y=-Math.PI/2;g.position.set(WX-5,(ya+yb)/2,(za+zb)/2);S.add(g)};
  box(WX-8,y0-6,z0-6,6,y1-y0+12,6,IV);box(WX-8,y0-6,z1,6,y1-y0+12,6,IV);box(WX-8,y1,z0-6,6,6,z1-z0+12,IV);box(WX-8,y0-6,z0-6,6,6,z1-z0+12,IV);   // casing
