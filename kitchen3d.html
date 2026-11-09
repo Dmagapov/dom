@@ -324,10 +324,18 @@ stool(25,IZ0-22);stool(85,IZ0-22);
 
 // ===== living / dining (RoomPlan scan 09.11, aligned with the kitchen scan) =====
 {const OAK=M(0xc49a6c,{roughness:.55}),BLK=M(0x1b1c1f,{roughness:.4,metalness:.3}),FAB=M(0x8f9196,{roughness:.95}),FAB2=M(0x7f8186,{roughness:.95}),CH=M(0x3c3f45,{roughness:.8}),PL=M(0xf3f2ee,{roughness:.85});
- // dining table 210×100 with 6 chairs (3 per long side)
- const TX=-356,TZ=100;box(TX,72,TZ,210,4,100,OAK,"Обеденный стол на 6 персон");
- for(const [lx,lz] of [[8,8],[196,8],[8,86],[196,86]])box(TX+lx,0,TZ+lz,6,72,6,BLK);
- const chair=(x,z,f)=>{box(x,44,z,46,6,46,CH,"Стул у обеденного стола");const bz=f>0?z:z+42;box(x,50,bz,46,44,4,CH);for(const [a,b] of [[2,2],[40,2],[2,40],[40,40]])box(x+a,0,z+b,4,44,4,BLK)};
+ // dining table 210×100 (photo): white glass top + white gloss apron, two tapered white pedestals on brushed-steel plates
+ const TX=-356,TZ=100,WG=new THREE.MeshPhysicalMaterial({color:0xfbfbfb,roughness:.06,clearcoat:1,clearcoatRoughness:.03}),BRS=M(0xb8bcc1,{metalness:.85,roughness:.38}),CHRM=M(0xe3e6ea,{metalness:1,roughness:.1}),LTH=new THREE.MeshPhysicalMaterial({color:0x111214,roughness:.45,clearcoat:.35});
+ box(TX,72,TZ,210,4,100,WG,"Обеденный стол на 6 персон");box(TX+3,65,TZ+3,204,7,94,WG);
+ for(const cx of[TX+45,TX+165]){const sh=new THREE.Shape();sh.moveTo(-14,0);sh.lineTo(14,0);sh.lineTo(28,65);sh.lineTo(-28,65);sh.lineTo(-14,0);
+   const g=new THREE.ExtrudeGeometry(sh,{depth:12,bevelEnabled:false});const pm=new THREE.Mesh(g,WG);pm.rotation.y=Math.PI/2;pm.position.set(cx-6,0,TZ+50);S.add(pm);
+   box(cx-24,0,TZ+50-36,48,1.6,72,BRS)}
+ // cantilever chairs: black leather, tall back with chrome handle, chrome flat-bar sled frame
+ const chair=(x,z,f)=>{const W=44,D=46,back=f>0?z:z+D-7,bo=f>0?z-1.2:z+D;
+   box(x,44,z,W,8,D,LTH,"Стул у обеденного стола");box(x,52,back,W,56,7,LTH);
+   box(x+8,111,bo,28,1.6,1.6,CHRM);box(x+8,104,bo,1.6,8,1.6,CHRM);box(x+34.4,104,bo,1.6,8,1.6,CHRM);
+   for(const xi of[x+3,x+W-5]){box(xi,0,z+2,2,1.2,D-4,CHRM);box(xi,0,f>0?z+D-4:z+2,2,44,2,CHRM);box(xi,42,z+2,2,2,D-4,CHRM);box(xi,44,bo,2,60,1.2,CHRM)}
+   box(x+3,0,z+2,W-6,1.2,2,CHRM);box(x+3,0,z+D-4,W-6,1.2,2,CHRM)};
  for(const cx of[TX+12,TX+82,TX+152]){chair(cx,TZ-34,1);chair(cx,TZ+88,-1)}
  // corner sofa: long part along the TV column side, short part along the left wall
  const sofa=(x,z,w,d,backSide)=>{box(x,10,z,w,32,d,FAB,"Угловой диван");box(x+4,0,z+4,4,10,4,BLK);box(x+w-8,0,z+d-8,4,10,4,BLK);
