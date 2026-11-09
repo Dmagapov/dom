@@ -294,11 +294,11 @@ stool(25,IZ0-22);stool(85,IZ0-22);
    for(let k=0;k<26;k++){const h=40+((k*37)%30),tw=new THREE.Mesh(new THREE.CylinderGeometry(.25,.35,h,4),M(k%3?0x161616:0xf2f2f2));tw.position.set(CX0+7+Math.sin(k*2.1)*3,119+h/2,zc+Math.cos(k*1.7)*4);tw.rotation.z=Math.sin(k)*.25;tw.rotation.x=Math.cos(k*1.3)*.22;S.add(tw)}}
  cyl(CX0+7,202.5,500,4.5,4.5,16,M(0x1a1a1c,{roughness:.3}),20);cyl(CX0+7,202.5,540,6,7.5,18,M(0x232325,{roughness:.6}),24);
  // --- north face: big clock (12 bars) next to the curved TV ---
- for(let k=0;k<12;k++){const a=k/12*Math.PI*2,L=k%3?4:6;const m=new THREE.Mesh(new THREE.BoxGeometry(1.5,L,.6),M(0x121212));m.position.set(42-Math.sin(a)*21,222+Math.cos(a)*21,CZ0-.4);m.rotation.z=a;S.add(m)}
- box(41,221,CZ0-1.2,2,2,1,M(0xc9ced4,{metalness:1}),null,false);
+ for(let k=0;k<12;k++){const a=k/12*Math.PI*2,L=k%3?4:6;const m=new THREE.Mesh(new THREE.BoxGeometry(1.5,L,.6),M(0x121212));m.position.set(TVX-Math.sin(a)*21,222+Math.cos(a)*21,CZ0-.4);m.rotation.z=a;S.add(m)}
+ box(TVX-1,221,CZ0-1.2,2,2,1,M(0xc9ced4,{metalness:1}),null,false);
  // --- south face with the WC door ---
  box(CX0,0,CZ1-10,DX0-CX0,260,10,CW);box(DX1,0,CZ1-10,CX1-DX1,260,10,CW);box(DX0,210,CZ1-10,DX1-DX0,50,10,CW);
- box(DX0+1,0,CZ1-8,DX1-DX0-2,209,4,M(0xfbfbfa,{roughness:.5}),"Санузел в центре дома");
+ box(DX0+1,0,CZ1-8,DX1-DX0-2,209,4,new THREE.MeshPhysicalMaterial({color:0x131315,roughness:.35,clearcoat:.5}),"Санузел в центре дома");
  box(DX1-14,98,CZ1-2.5,10,2,2,M(0xc9ced4,{metalness:1,roughness:.25}),null,false);
  // --- east: 4-door sliding wardrobe (white panels + mirror band, aluminium frames) ---
  const WD=60,WZ0=CZ0+10,WL=CZ1-CZ0-20;box(CX1-WD,0,WZ0,WD,250,WL,CW);
