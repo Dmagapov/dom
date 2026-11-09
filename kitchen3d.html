@@ -275,7 +275,7 @@ function stool(x,z){cyl(x,0,z,20,20,1.5,CHROME);cyl(x,1.5,z,2.5,2.5,58,CHROME,16
 stool(25,IZ0-22);stool(85,IZ0-22);
 
 // ===== central column (scan 03 + photos 09.11): N = curved TV + clock (kitchen), W = niche wall with 2nd TV (sofa), S = WC door, E = 4-door sliding wardrobe; WC inside =====
-{const CW=M(0xf4f4f1,{roughness:.9}),CX0=-36,CX1=284,CZ0=404,CZ1=634,DX0=-11,DX1=74,WT=14;
+{const CW=M(0xf4f4f1,{roughness:.9}),CX0=-36,CX1=284,CZ0=404,CZ1=634,DX0=79,DX1=169,WT=14;   // WC door: centred, 90 cm
  const stoneT=canvasTex(256,256,(c,W,H)=>{c.fillStyle="#d9d6cf";c.fillRect(0,0,W,H);let sd=5;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;for(let y=0;y<H;y+=16){let x=-r()*60;while(x<W){const w=40+r()*70;c.fillStyle=`hsl(40,${6+r()*6}%,${78+r()*12}%)`;c.fillRect(x+1,y+1,w-2,14);x+=w}}});stoneT.wrapS=stoneT.wrapT=THREE.RepeatWrapping;
  const STN=new THREE.MeshStandardMaterial({map:stoneT,roughness:.8}),SHELF=new THREE.MeshPhysicalMaterial({color:0x0c0c0e,roughness:.12,clearcoat:1});
  // --- west face: wall with recessed niches (cell decomposition around holes) ---
@@ -294,8 +294,8 @@ stool(25,IZ0-22);stool(85,IZ0-22);
    for(let k=0;k<26;k++){const h=40+((k*37)%30),tw=new THREE.Mesh(new THREE.CylinderGeometry(.25,.35,h,4),M(k%3?0x161616:0xf2f2f2));tw.position.set(CX0+7+Math.sin(k*2.1)*3,119+h/2,zc+Math.cos(k*1.7)*4);tw.rotation.z=Math.sin(k)*.25;tw.rotation.x=Math.cos(k*1.3)*.22;S.add(tw)}}
  cyl(CX0+7,202.5,500,4.5,4.5,16,M(0x1a1a1c,{roughness:.3}),20);cyl(CX0+7,202.5,540,6,7.5,18,M(0x232325,{roughness:.6}),24);
  // --- north face: big clock (12 bars) next to the curved TV ---
- for(let k=0;k<12;k++){const a=k/12*Math.PI*2,L=k%3?6:9;const m=new THREE.Mesh(new THREE.BoxGeometry(2,L,.6),M(0x121212));m.position.set(20-Math.sin(a)*30,210+Math.cos(a)*30,CZ0-.4);m.rotation.z=a;S.add(m)}
- box(19,209,CZ0-1.2,2,2,1,M(0xc9ced4,{metalness:1}),null,false);
+ for(let k=0;k<12;k++){const a=k/12*Math.PI*2,L=k%3?4:6;const m=new THREE.Mesh(new THREE.BoxGeometry(1.5,L,.6),M(0x121212));m.position.set(42-Math.sin(a)*21,222+Math.cos(a)*21,CZ0-.4);m.rotation.z=a;S.add(m)}
+ box(41,221,CZ0-1.2,2,2,1,M(0xc9ced4,{metalness:1}),null,false);
  // --- south face with the WC door ---
  box(CX0,0,CZ1-10,DX0-CX0,260,10,CW);box(DX1,0,CZ1-10,CX1-DX1,260,10,CW);box(DX0,210,CZ1-10,DX1-DX0,50,10,CW);
  box(DX0+1,0,CZ1-8,DX1-DX0-2,209,4,M(0xfbfbfa,{roughness:.5}),"Санузел в центре дома");
