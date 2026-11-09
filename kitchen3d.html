@@ -173,7 +173,11 @@ const tex=t=>{const c=document.createElement("canvas");c.width=128;c.height=64;c
 function tape(code,x,y,z,rotY){const p=new THREE.Mesh(new THREE.PlaneGeometry(20,10),new THREE.MeshBasicMaterial({map:tex(code)}));p.position.set(x,y,z);p.rotation.y=rotY||0;S.add(p)}
 function handle(x,y,z,w,rotY){const h=box(0,0,0,w,1.6,1.6,CHROME);h.position.set(x,y,z);h.rotation.y=rotY||0}
 // ---- room ----
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(800,560),M(0xeceff3,{roughness:.25}));floor.rotation.x=-Math.PI/2;floor.position.set(240,-0.5,200);S.add(floor);
+const marble=(()=>{const t=canvasTex(1024,1024,(c,W,H)=>{c.fillStyle="#eeeeec";c.fillRect(0,0,W,H);let sd=11;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  for(let k=0;k<26;k++){c.strokeStyle=`rgba(150,152,155,${.12+r()*.22})`;c.lineWidth=.6+r()*1.8;c.beginPath();let x=r()*W,y=r()*H;c.moveTo(x,y);for(let i=0;i<14;i++){x+=(r()-.3)*90;y+=(r()-.5)*70;c.lineTo(x,y)}c.stroke()}
+  c.fillStyle="rgba(255,255,255,.25)";for(let i=0;i<400;i++)c.fillRect(r()*W,r()*H,2,2);
+  c.fillStyle="#d4d5d6";c.fillRect(0,0,W,3);c.fillRect(0,H/2,W,3);c.fillRect(0,0,3,H)});t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(800/120,560/120);return t})();
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(800,560),new THREE.MeshPhysicalMaterial({map:marble,roughness:.18,clearcoat:.6,clearcoatRoughness:.1}));floor.rotation.x=-Math.PI/2;floor.position.set(240,-0.5,200);S.add(floor);
 const WALLB=box(-160,0,-8,584,260,6,M(0xeef1f5));WALLB.visible=true;
 const WALLF=box(418,0,-8,6,260,420,M(0xeef1f5));
 const WALLO=box(-36,0,404,320,260,10,M(0xeef1f5));
@@ -216,12 +220,21 @@ box(0,0,0,414,1,58,M(0x9aa0a8));
 bin(-46,8);
 // ---- far wall: window, fridge pantry, window ----
 const WX=416;  // real: LiDAR scan 09.11 — right wall 4.04–4.16 m from the bin end
-box(WX-3,0,70,4,235,82,GLASS);box(WX-4,0,68,5,235,3,WHITE);box(WX-4,0,150,5,235,3,WHITE);box(WX-4,0,68,5,3,85,WHITE);box(WX-4,232,68,5,3,85,WHITE);
+// single tall window (photo 09.11): ivory frame, big upper sash + lower sash, blinds between the panes
+{const IV=M(0xf1ecdf,{roughness:.45});const z0=70,z1=166,y0=10,y1=214,ym=70;
+ const bl=(dark)=>canvasTex(256,256,(c,W,H)=>{c.fillStyle=dark?"#5d6468":"#b9c7c3";c.fillRect(0,0,W,H);for(let y=0;y<H;y+=9){c.fillStyle=dark?"#3f4548":"#cfdad6";c.fillRect(0,y,W,5);c.fillStyle="rgba(0,0,0,.12)";c.fillRect(0,y+5,W,1)}});
+ const pane=(za,zb,ya,yb,dark)=>{const p=new THREE.Mesh(new THREE.PlaneGeometry(zb-za,yb-ya),new THREE.MeshStandardMaterial({map:bl(dark),roughness:.35,metalness:.05}));p.rotation.y=-Math.PI/2;p.position.set(WX-3,(ya+yb)/2,(za+zb)/2);S.add(p);
+   const g=new THREE.Mesh(new THREE.PlaneGeometry(zb-za,yb-ya),new THREE.MeshPhysicalMaterial({color:0xffffff,transparent:true,opacity:.12,roughness:.02,clearcoat:1}));g.rotation.y=-Math.PI/2;g.position.set(WX-5,(ya+yb)/2,(za+zb)/2);S.add(g)};
+ box(WX-8,y0-6,z0-6,6,y1-y0+12,6,IV);box(WX-8,y0-6,z1,6,y1-y0+12,6,IV);box(WX-8,y1,z0-6,6,6,z1-z0+12,IV);box(WX-8,y0-6,z0-6,6,6,z1-z0+12,IV);   // casing
+ box(WX-6,ym-3,z0,4,6,z1-z0,IV);box(WX-6,y0,z0,4,5,z1-z0,IV);box(WX-6,y1-5,z0,4,5,z1-z0,IV);box(WX-6,y0,z0,4,y1-y0,5,IV);box(WX-6,y0,z1-5,4,y1-y0,5,IV); // sash frames
+ pane(z0+5,z1-5,ym+3,y1-5,false);pane(z0+5,z1-5,y0+5,ym-3,true);
+ box(WX-9,y1-80,z0+3,3,9,2.4,M(0xe8e2d4),null,false)}
+
 const FZ=245,FW=92,FD=70;
 box(WX-FD-2,0,FZ-4,FD,235,4,WHITE);box(WX-FD-2,0,FZ+FW,FD,235,4,WHITE);
 box(WX-FD,182,FZ,FD,53,FW,WHITE,'<span class="tape">К27</span> · шкафчик над холодильником');tape("К27",WX-FD-1,208,FZ+FW/2,-Math.PI/2);
 fridge(WX,FZ,FW,FD);
-box(WX-3,0,158,4,235,78,GLASS);box(WX-4,0,236,5,235,3,WHITE);
+
 // ---- island ----
 const IX0=-6,IX1=209,IZ0=185,IZ1=285,MID=(IZ0+IZ1)/2,DR0=119;  // real island 215×100 (scan)
 box(IX0,86,IZ0,IX1-IX0,6,IZ1-IZ0,stoneMat(2.8,1),"Остров (белый искусственный камень)",false);
