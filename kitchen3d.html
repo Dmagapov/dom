@@ -179,11 +179,11 @@ const WALLF=box(418,0,-8,6,260,420,M(0xeef1f5));
 const WALLO=box(-36,0,404,320,260,10,M(0xeef1f5));
 // LG 55EG910V curved OLED on the opposite wall, facing the kitchen
 const TVW=123,TVH=71,TVX=124,TVY=150,TVZ=402;
-const tvg=new THREE.Mesh(new THREE.CylinderGeometry(450,450,TVH,64,1,true,Math.PI-TVW/900,TVW/450),new THREE.MeshPhysicalMaterial({color:0x020203,roughness:.04,clearcoat:1,envMapIntensity:.7,side:THREE.DoubleSide}));
-tvg.position.set(TVX,TVY,TVZ+450-3);tvg.userData.info="Телевизор LG 55EG910V — изогнутый OLED 55″ (2016)";S.add(tvg);picks.push(tvg);
-const tvb=new THREE.Mesh(new THREE.CylinderGeometry(450.8,450.8,TVH+1,64,1,true,Math.PI-TVW/900-.002,TVW/450+.004),new THREE.MeshStandardMaterial({color:0xc9ced4,metalness:1,roughness:.3,side:THREE.BackSide}));tvb.position.copy(tvg.position);S.add(tvb);
+const tvg=new THREE.Mesh(new THREE.CylinderGeometry(450,450,TVH,64,1,true,-TVW/900,TVW/450),new THREE.MeshPhysicalMaterial({color:0x020203,roughness:.04,clearcoat:1,envMapIntensity:.7,side:THREE.DoubleSide}));
+tvg.position.set(TVX,TVY,TVZ-3-450);   // concave towards the kitchen (curve centre in front)tvg.userData.info="Телевизор LG 55EG910V — изогнутый OLED 55″ (2016)";S.add(tvg);picks.push(tvg);
+const tvb=new THREE.Mesh(new THREE.CylinderGeometry(450.8,450.8,TVH+1,64,1,true,-TVW/900-.002,TVW/450+.004),new THREE.MeshStandardMaterial({color:0xc9ced4,metalness:1,roughness:.3,side:THREE.DoubleSide}));tvb.position.copy(tvg.position);S.add(tvb);
 
-for(const [dx,dy,n] of [[-14,50,"I"],[0,46,"6"],[14,50,"I"]]){const c=document.createElement("canvas");c.width=64;c.height=96;const g=c.getContext("2d");g.fillStyle="#b8bec6";g.font="bold 80px Arial";g.textAlign="center";g.fillText(n,32,78);const pl=new THREE.Mesh(new THREE.PlaneGeometry(6,9),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true}));pl.position.set(TVX+dx,TVY+dy,TVZ-.5);pl.rotation.y=Math.PI;S.add(pl)}
+for(const [dx,dy,n] of [[-14,50,"I"],[0,46,"6"],[14,50,"I"]]){const c=document.createElement("canvas");c.width=64;c.height=96;const g=c.getContext("2d");g.fillStyle="#b8bec6";g.font="bold 80px Arial";g.textAlign="center";g.fillText(n,32,78);const pl=new THREE.Mesh(new THREE.PlaneGeometry(6,9),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true}));pl.position.set(TVX+dx,TVY+dy,TVZ-3.6);pl.rotation.y=Math.PI;S.add(pl)}
 // ---- wall run ----
 WALL.forEach(b=>{const h=b.y1-b.y0,lab=b.lab||"";
   if(b.kind==="splash"){box(b.x,b.y0,0,b.w,h,2,M(0xffffff,{emissive:0xdfe8ff,emissiveIntensity:.35}));return}
