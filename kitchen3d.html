@@ -222,16 +222,18 @@ bin(-46,8);
 // ---- far wall: window, fridge pantry, window ----
 const WX=416;  // real: LiDAR scan 09.11 — right wall 4.04–4.16 m from the bin end
 // single tall window (photo 09.11): ivory frame, big upper sash + lower sash, blinds between the panes
-{const IV=M(0xf1ecdf,{roughness:.45});const z0=70,z1=166,y0=10,y1=214,ym=70;
+const tallWindow=(z0)=>{const IV=M(0xf1ecdf,{roughness:.45});const z1=z0+96,y0=10,y1=214,ym=70;
  const bl=()=>canvasTex(256,256,(c,W,H)=>{const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,"#cfe0ea");g.addColorStop(.55,"#9fb7c6");g.addColorStop(1,"#7f97a6");c.fillStyle=g;c.fillRect(0,0,W,H);c.fillStyle="rgba(255,255,255,.35)";c.beginPath();c.moveTo(W*.15,0);c.lineTo(W*.35,0);c.lineTo(W*.05,H);c.lineTo(0,H*.8);c.fill()});   // plain glass, two sashes
  const pane=(za,zb,ya,yb,dark)=>{const p=new THREE.Mesh(new THREE.PlaneGeometry(zb-za,yb-ya),new THREE.MeshStandardMaterial({map:bl(dark),roughness:.35,metalness:.05}));p.rotation.y=-Math.PI/2;p.position.set(WX-3,(ya+yb)/2,(za+zb)/2);S.add(p);
    const g=new THREE.Mesh(new THREE.PlaneGeometry(zb-za,yb-ya),new THREE.MeshPhysicalMaterial({color:0xffffff,transparent:true,opacity:.12,roughness:.02,clearcoat:1}));g.rotation.y=-Math.PI/2;g.position.set(WX-5,(ya+yb)/2,(za+zb)/2);S.add(g)};
  box(WX-8,y0-6,z0-6,6,y1-y0+12,6,IV);box(WX-8,y0-6,z1,6,y1-y0+12,6,IV);box(WX-8,y1,z0-6,6,6,z1-z0+12,IV);box(WX-8,y0-6,z0-6,6,6,z1-z0+12,IV);   // casing
  box(WX-6,ym-3,z0,4,6,z1-z0,IV);box(WX-6,y0,z0,4,5,z1-z0,IV);box(WX-6,y1-5,z0,4,5,z1-z0,IV);box(WX-6,y0,z0,4,y1-y0,5,IV);box(WX-6,y0,z1-5,4,y1-y0,5,IV); // sash frames
  pane(z0+5,z1-5,ym+3,y1-5,false);pane(z0+5,z1-5,y0+5,ym-3,true);
- box(WX-9,y1-80,z0+3,3,9,2.4,M(0xe8e2d4),null,false)}
+ box(WX-9,y1-80,z0+3,3,9,2.4,M(0xe8e2d4),null,false)};
+
 
 const FZ=245,FW=92,FD=70;
+tallWindow(70);tallWindow(FZ+FW+4+75);   // two identical windows, one each side of the fridge (Dmitry 09.11)
 box(WX-FD-2,0,FZ-4,FD,235,4,WHITE);box(WX-FD-2,0,FZ+FW,FD,235,4,WHITE);
 box(WX-FD,182,FZ,FD,53,FW,WHITE,'<span class="tape">К27</span> · шкафчик над холодильником');tape("К27",WX-FD-1,208,FZ+FW/2,-Math.PI/2);
 fridge(WX,FZ,FW,FD);
