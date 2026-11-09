@@ -105,7 +105,7 @@ function ring(ctx,cx,cy,r,txt){ctx.strokeStyle="#c9ced4";ctx.lineWidth=r*.28;ctx
 function panelTex(kind){return canvasTex(512,96,(x,w,h)=>{const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,"#e6e9ed");g.addColorStop(.5,"#b9bec5");g.addColorStop(1,"#d8dce1");x.fillStyle=g;x.fillRect(0,0,w,h);
   x.fillStyle="#08090b";x.fillRect(120,14,272,68);x.fillStyle="#1a2433";x.fillRect(150,26,70,44);x.fillRect(292,26,70,44);ring(x,256,48,30,kind==="coffee"?"":"00:35");x.fillStyle="#9aa3ad";x.font="bold 14px Arial";x.fillText("BOSCH",60,52)})}
 // built-in oven / steam oven / coffee / microwave in column (front at z=60)
-function builtIn(x,y0,w,h,kind,info){const z=0,d=60;rbox(x+.5,y0+.3,z,w-1,h-.6,d,DARK,.6,info);
+function builtIn(x,y0,w,h,kind,info){const z=0,d=60;box(x,y0,0,w,h,59.6,WHITE);rbox(x+1.2,y0+.8,z,w-2.4,h-1.6,d+.6,DARK,.6,info);
   if(kind==="micro"){face(x+w/2,y0+h*.62,d+.15,w-6,h*.58,canvasTex(256,160,(c,W,H)=>{c.fillStyle="#020203";c.fillRect(0,0,W,H);c.fillStyle="#0b0c0e";c.fillRect(30,22,150,110);c.fillStyle="#cfd3d8";c.font="bold 14px Arial";c.fillText("BOSCH",112,16)}));
     face(x+w/2,y0+h*.17,d+.15,w-6,h*.26,canvasTex(512,96,(c,W,H)=>{c.fillStyle="#050506";c.fillRect(0,0,W,H);c.fillStyle="#3a3f46";for(let i=0;i<4;i++){c.fillRect(70+i*26,30,14,10);c.fillRect(70+i*26,56,14,10);c.fillRect(330+i*26,30,14,10)}ring(c,256,48,30,"02:37")}),0,{roughness:.1});return}
   const strip=11;box(x+1.5,y0+h-strip,d,w-3,strip-1,.6,BRUSH);face(x+w/2,y0+h-strip/2-.5,d+.65,w-6,strip-3,panelTex(kind));
@@ -191,7 +191,7 @@ WALL.forEach(b=>{const h=b.y1-b.y0,lab=b.lab||"";
   if(b.kind==="shelf"){box(b.x,b.y0,0,b.w,2,28,WHITE);for(let i=0;i<26;i++){const gx=b.x+5+i*(b.w-10)/25,z=7+(i%2)*10,k=i%5;if(k<3){cyl(gx,b.y0+2,z,2.4,2.4,.4,GLASS,12);cyl(gx,b.y0+2.4,z,.35,.35,k===2?9:6,GLASS,8);const cu=new THREE.Mesh(new THREE.SphereGeometry(k===1?3.4:2.6,14,10,0,Math.PI*2,Math.PI*0.25,Math.PI*0.75),GLASS);cu.rotation.x=Math.PI;cu.position.set(gx,b.y0+(k===2?17:12),z);S.add(cu)}else cyl(gx,b.y0+2,z,2.6,2.3,k===3?12:9,GLASS,16)}box(b.x,b.y0,0,b.w,22,28,new THREE.MeshBasicMaterial({visible:false}),"Открытая полка: стеклянная посуда — рюмки, стаканы, бокалы, графины, стеклянные чайники");return}
   const isW=b.kind==="w";const d=isW?35:60;
   if(b.kind==="app"){
-    if(/Посудомойка/.test(lab)){box(b.x+.5,b.y0,0,b.w-1,h,d,GLOSS,"Посудомоечная машина Bosch (встроенная, за дверцей)");handle(b.x+b.w/2,b.y1-8,d+1,b.w*.5);return}
+    if(/Посудомойка/.test(lab)){box(b.x,b.y0,0,b.w,h,d-2,WHITE);box(b.x+1.2,b.y0+.6,d-2,b.w-2.4,h-1.2,2.4,GLOSS,"Посудомоечная машина Bosch (встроенная, за дверцей)");handle(b.x+b.w/2,b.y1-8,d+1,b.w*.5);return}
     builtIn(b.x,b.y0,b.w,h,/Кофе/.test(lab)?"coffee":/паром/.test(lab)?"steam":/Микро/.test(lab)?"micro":"pyro",{"Кофемашина Bosch":"Встроенная кофемашина Bosch CTL636ES1","Духовка с паром":"Духовой шкаф с паром Bosch HSG636ES1","Микроволновка":"Микроволновка Bosch BFR634GB1","Духовка с пиролизом":"Духовка с пиролизом Bosch HBG676ES1"}[lab]||lab);return;
     box(b.x+3,b.y1-11,d,b.w-6,8,1,STEEL);cyl(b.x+b.w/2,b.y1-7.5,d+1.2,2.6,2.6,.6,BLUE).rotation.x=Math.PI/2;
     if(/Духовка/.test(lab)){handle(b.x+b.w/2,b.y1-15,d+2,b.w*.75);box(b.x+5,b.y0+5,d,b.w-10,h-24,.6,M(0x050608,{roughness:.05}))}
@@ -227,10 +227,13 @@ const IX0=-6,IX1=209,IZ0=185,IZ1=285,MID=(IZ0+IZ1)/2,DR0=119;  // real island 21
 box(IX0,86,IZ0,IX1-IX0,6,IZ1-IZ0,stoneMat(2.8,1),"Остров (белый искусственный камень)",false);
 box(IX0,0,IZ0,5,86,IZ1-IZ0,STONE);box(IX1-5,0,IZ0,5,86,IZ1-IZ0,STONE);       // waterfall ends
 box(IX0+5,0,MID-1.5,DR0-IX0-5,86,3,WHITE);                                       // divider
+box(IX0+5,0,IZ0,1,86,IZ1-IZ0,WHITE,null,false);box(IX0+5,85,IZ0,DR0-IX0-5,1,IZ1-IZ0,WHITE,null,false);box(IX0+5,0,IZ0,DR0-IX0-5,.6,IZ1-IZ0,WHITE,null,false); // white niche: side, ceiling, floor
 // drawers under hob, both sides
 [[IZ0,"К23","К24",-1],[MID+1.5,"К25","К26",1]].forEach(([z,a,b,s])=>{const d=MID-IZ0-1.5;
-  box(DR0,44,z,IX1-5-DR0,42,d,GLOSS,`<span class="tape">${a}</span> · остров, ${s<0?"сторона барных стульев (к кухне)":"сторона к комнате"}, верхний ящик под плитой`);
-  box(DR0,0,z,IX1-5-DR0,43,d,GLOSS,`<span class="tape">${b}</span> · остров, ${s<0?"сторона барных стульев (к кухне)":"сторона к комнате"}, нижний ящик под плитой`);
+  box(DR0,0,z,IX1-5-DR0,86,d,WHITE);                       // white carcass
+  const ff=s>0?z+d-2:z-.4;                                  // black fronts, inset 1.2 cm so the white frame shows
+  box(DR0+1.2,44.4,ff,IX1-5-DR0-2.4,40.8,2.4,GLOSS,`<span class="tape">${a}</span> · остров, ${s<0?"сторона барных стульев (к кухне)":"сторона к комнате"}, верхний ящик под плитой`);
+  box(DR0+1.2,.8,ff,IX1-5-DR0-2.4,42,2.4,GLOSS,`<span class="tape">${b}</span> · остров, ${s<0?"сторона барных стульев (к кухне)":"сторона к комнате"}, нижний ящик под плитой`);
   const fz=s>0?z+d+1:z-1,ry=s>0?0:Math.PI;
   handle((DR0+IX1-5)/2,80,fz,26,ry);handle((DR0+IX1-5)/2,37,fz,26,ry);tape(a,(DR0+IX1-5)/2,62,s>0?fz+.2:fz-.2,ry);tape(b,(DR0+IX1-5)/2,20,s>0?fz+.2:fz-.2,ry)});
 // hob (shifted to stools side, ~2/3)
@@ -269,5 +272,5 @@ R.domElement.addEventListener("pointerdown",e=>{down=[e.clientX,e.clientY]});
 R.domElement.addEventListener("pointerup",e=>{if(down&&Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;const r=R.domElement.getBoundingClientRect();v.x=((e.clientX-r.left)/r.width)*2-1;v.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(v,cam);const h=ray.intersectObjects(picks)[0];if(!h){if(sel){sel.material=sel.userData.m0;sel=null}return}
   if(sel){sel.material=sel.userData.m0}sel=h.object;sel.userData.m0=sel.material;sel.material=sel.material.clone();if(sel.material.emissive)sel.material.emissive.setHex(0x0a2a6a);openCard(card(sel.userData.info))});
 addEventListener("resize",()=>{R.setSize(el.clientWidth,el.clientHeight);cam.aspect=el.clientWidth/el.clientHeight;cam.updateProjectionMatrix()});
-(function loop(){ctl.update();WALLO.visible=cam.position.z<404;tvg.visible=tvb.visible=WALLO.visible;R.render(S,cam);requestAnimationFrame(loop)})();
+(function loop(){ctl.update();{const behind=cam.position.z>404;WALLO.material.transparent=behind;WALLO.material.opacity=behind?.18:1;WALLO.material.depthWrite=!behind;}R.render(S,cam);requestAnimationFrame(loop)})();
 </script>
