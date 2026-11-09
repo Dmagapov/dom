@@ -54,7 +54,7 @@ const el=document.getElementById("three");
 const R=new THREE.WebGLRenderer({antialias:true,logarithmicDepthBuffer:true});R.setPixelRatio(Math.min(2,devicePixelRatio));R.setSize(el.clientWidth,el.clientHeight);el.appendChild(R.domElement);
 const S=new THREE.Scene();S.background=new THREE.Color(0xf3f6fb);
 const cam=new THREE.PerspectiveCamera(45,el.clientWidth/el.clientHeight,1,6000);cam.position.set(-120,300,620);
-const ctl=new THREE.OrbitControls(cam,R.domElement);ctl.target.set(210,80,190);ctl.enableDamping=true;ctl.maxPolarAngle=Math.PI*0.48;ctl.minDistance=120;ctl.minAzimuthAngle=-Math.PI*0.5;ctl.maxAzimuthAngle=Math.PI*0.1;ctl.maxDistance=900;ctl.update();
+const ctl=new THREE.OrbitControls(cam,R.domElement);ctl.target.set(200,80,200);ctl.enableDamping=true;ctl.maxPolarAngle=Math.PI*0.48;ctl.minDistance=120;ctl.minAzimuthAngle=-Math.PI*0.5;ctl.maxAzimuthAngle=Math.PI*0.1;ctl.maxDistance=900;ctl.update();
 {const pm=new THREE.PMREMGenerator(R);const es=new THREE.Scene();const g=new THREE.SphereGeometry(500,32,16);const c=document.createElement("canvas");c.width=512;c.height=256;const x=c.getContext("2d");const gr=x.createLinearGradient(0,0,0,256);gr.addColorStop(0,"#ffffff");gr.addColorStop(.45,"#e9edf2");gr.addColorStop(.55,"#9aa3ad");gr.addColorStop(1,"#d9dde2");x.fillStyle=gr;x.fillRect(0,0,512,256);x.fillStyle="#ffffff";for(let i=0;i<6;i++)x.fillRect(40+i*80,20,40,14);
  const et=new THREE.CanvasTexture(c);et.mapping=THREE.EquirectangularReflectionMapping;S.environment=pm.fromEquirectangular(et).texture}
 R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=.95;R.shadowMap.enabled=true;
@@ -174,11 +174,11 @@ function tape(code,x,y,z,rotY){const p=new THREE.Mesh(new THREE.PlaneGeometry(20
 function handle(x,y,z,w,rotY){const h=box(0,0,0,w,1.6,1.6,CHROME);h.position.set(x,y,z);h.rotation.y=rotY||0}
 // ---- room ----
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(800,560),M(0xeceff3,{roughness:.25}));floor.rotation.x=-Math.PI/2;floor.position.set(240,-0.5,200);S.add(floor);
-const WALLB=box(-160,0,-8,688,260,6,M(0xeef1f5));WALLB.visible=true;
-const WALLF=box(522,0,-8,6,260,420,M(0xeef1f5));
-const WALLO=box(-160,0,404,688,260,6,M(0xeef1f5));
+const WALLB=box(-160,0,-8,584,260,6,M(0xeef1f5));WALLB.visible=true;
+const WALLF=box(418,0,-8,6,260,420,M(0xeef1f5));
+const WALLO=box(-36,0,404,320,260,10,M(0xeef1f5));
 // LG 55EG910V curved OLED on the opposite wall, facing the kitchen
-const TVW=123,TVH=71,TVX=318,TVY=150,TVZ=402;
+const TVW=123,TVH=71,TVX=124,TVY=150,TVZ=402;
 const tvg=new THREE.Mesh(new THREE.CylinderGeometry(450,450,TVH,64,1,true,Math.PI-TVW/900,TVW/450),new THREE.MeshPhysicalMaterial({color:0x020203,roughness:.04,clearcoat:1,envMapIntensity:.7,side:THREE.DoubleSide}));
 tvg.position.set(TVX,TVY,TVZ+450-3);tvg.userData.info="Телевизор LG 55EG910V — изогнутый OLED 55″ (2016)";S.add(tvg);picks.push(tvg);
 const tvb=new THREE.Mesh(new THREE.CylinderGeometry(450.8,450.8,TVH+1,64,1,true,Math.PI-TVW/900-.002,TVW/450+.004),new THREE.MeshStandardMaterial({color:0xc9ced4,metalness:1,roughness:.3,side:THREE.BackSide}));tvb.position.copy(tvg.position);S.add(tvb);
@@ -215,15 +215,15 @@ box(0,0,0,414,1,58,M(0x9aa0a8));
 // ---- bin (left of coffee column) ----
 bin(-46,8);
 // ---- far wall: window, fridge pantry, window ----
-const WX=520;
+const WX=416;  // real: LiDAR scan 09.11 — right wall 4.04–4.16 m from the bin end
 box(WX-3,0,70,4,235,82,GLASS);box(WX-4,0,68,5,235,3,WHITE);box(WX-4,0,150,5,235,3,WHITE);box(WX-4,0,68,5,3,85,WHITE);box(WX-4,232,68,5,3,85,WHITE);
-const FZ=165,FW=92,FD=70;
+const FZ=245,FW=92,FD=70;
 box(WX-FD-2,0,FZ-4,FD,235,4,WHITE);box(WX-FD-2,0,FZ+FW,FD,235,4,WHITE);
 box(WX-FD,182,FZ,FD,53,FW,WHITE,'<span class="tape">К27</span> · шкафчик над холодильником');tape("К27",WX-FD-1,208,FZ+FW/2,-Math.PI/2);
 fridge(WX,FZ,FW,FD);
-box(WX-3,0,265,4,235,80,GLASS);
+box(WX-3,0,158,4,235,78,GLASS);box(WX-4,0,236,5,235,3,WHITE);
 // ---- island ----
-const IX0=55,IX1=360,IZ0=150,IZ1=260,MID=(IZ0+IZ1)/2,DR0=265;
+const IX0=-6,IX1=209,IZ0=185,IZ1=285,MID=(IZ0+IZ1)/2,DR0=119;  // real island 215×100 (scan)
 box(IX0,86,IZ0,IX1-IX0,6,IZ1-IZ0,stoneMat(2.8,1),"Остров (белый искусственный камень)",false);
 box(IX0,0,IZ0,5,86,IZ1-IZ0,STONE);box(IX1-5,0,IZ0,5,86,IZ1-IZ0,STONE);       // waterfall ends
 box(IX0+5,0,MID-1.5,DR0-IX0-5,86,3,WHITE);                                       // divider
@@ -234,7 +234,7 @@ box(IX0+5,0,MID-1.5,DR0-IX0-5,86,3,WHITE);                                      
   const fz=s>0?z+d+1:z-1,ry=s>0?0:Math.PI;
   handle((DR0+IX1-5)/2,80,fz,26,ry);handle((DR0+IX1-5)/2,37,fz,26,ry);tape(a,(DR0+IX1-5)/2,62,s>0?fz+.2:fz-.2,ry);tape(b,(DR0+IX1-5)/2,20,s>0?fz+.2:fz-.2,ry)});
 // hob (shifted to stools side, ~2/3)
-box(270,92,MID-28,80,.8,54,M(0x07080a,{roughness:.05,metalness:.2}),"Индукционная панель Bosch PVQ611BB6E");{const p=new THREE.Mesh(new THREE.PlaneGeometry(80,54),new THREE.MeshPhysicalMaterial({map:hobTex(),roughness:.05,clearcoat:1,envMapIntensity:.5}));p.rotation.x=-Math.PI/2;p.rotation.z=Math.PI;p.position.set(310,93.25,MID-1);S.add(p)}
+box(DR0+2,92,MID-28,80,.8,54,M(0x07080a,{roughness:.05,metalness:.2}),"Индукционная панель Bosch PVQ611BB6E");{const p=new THREE.Mesh(new THREE.PlaneGeometry(80,54),new THREE.MeshPhysicalMaterial({map:hobTex(),roughness:.05,clearcoat:1,envMapIntensity:.5}));p.rotation.x=-Math.PI/2;p.rotation.z=Math.PI;p.position.set(DR0+42,93.25,MID-1);S.add(p)}
 
 // hood Falmec: two curved black-glass panels with white NY skyline, stainless chimney to ceiling
 const sky=(()=>{const c=document.createElement("canvas");c.width=1024;c.height=256;const x=c.getContext("2d");x.fillStyle="#08090b";x.fillRect(0,0,1024,256);let px=0;
@@ -242,20 +242,20 @@ const sky=(()=>{const c=document.createElement("canvas");c.width=1024;c.height=2
     if(Math.random()<.25){x.beginPath();x.moveTo(px+w/2,top-30);x.lineTo(px+w/2-3,top);x.lineTo(px+w/2+3,top);x.fill()}
     for(let wy=top;wy<252;wy+=7)for(let wx=px+2;wx<px+w-3;wx+=5)if(Math.random()<.8){x.fillStyle="#f2f2f2";x.fillRect(wx,wy,3.4,5)}
     px+=w+3}return new THREE.CanvasTexture(c)})();
-const HX=310,HZ=MID-4,HY=157,HR=45,HH=45;
+const HX=DR0+42,HZ=MID-4,HY=157,HR=45,HH=45;
 for(const t0 of[0.15,Math.PI+0.15]){const g=new THREE.Mesh(new THREE.CylinderGeometry(HR,HR,HH,48,1,true,t0,Math.PI-0.3),new THREE.MeshStandardMaterial({map:sky,side:THREE.DoubleSide,roughness:.1,metalness:.2}));g.position.set(HX,HY+HH/2,HZ);g.userData.info="Вытяжка Falmec Mirabilia — стеклянные панели с принтом небоскрёбов Нью-Йорка";S.add(g);picks.push(g)}
 box(HX-14,HY+2,HZ-14,28,HH-2,28,STEEL);box(HX-13,HY+HH,HZ-13,26,260-HY-HH,26,STEEL);
 // room side (+z): cooler, Dreame, wine — pictures on the front
 const FZr=IZ1-2,DD=MID+3;
 wine(DR0-39,DD,38,82,FZr-DD);
 dreame(DR0-80,DD+8,36,FZr-DD-26);
-cooler(DR0-123,DD+6,40,40,FZr-DD-14);
+cooler(DR0-120,DD+6,40,40,FZr-DD-14);
 
 // stools side: two bar stools
 function stool(x,z){cyl(x,0,z,20,20,1.5,CHROME);cyl(x,1.5,z,2.5,2.5,58,CHROME,16);const r=new THREE.Mesh(new THREE.TorusGeometry(13,1,8,32,Math.PI*1.3),CHROME);r.rotation.x=Math.PI/2;r.position.set(x,24,z);S.add(r);
   const seat=new THREE.Mesh(new THREE.SphereGeometry(19,32,16,0,Math.PI*2,Math.PI/2,Math.PI/2),M(0xf7f7f7,{roughness:.2}));seat.position.set(x,79,z);S.add(seat);
   const cush=new THREE.Mesh(new THREE.CircleGeometry(17,32),M(0x0c0c0e,{roughness:.6}));cush.rotation.x=-Math.PI/2;cush.position.set(x,78.8,z);S.add(cush);seat.userData.info="Барный стул";picks.push(seat)}
-stool(140,IZ0-22);stool(215,IZ0-22);
+stool(25,IZ0-22);stool(85,IZ0-22);
 S.traverse(o=>{if(o.isMesh&&!o.material.transparent){o.castShadow=true;o.receiveShadow=true}});
 // crisp outlines so white-on-white and black-on-black parts read clearly
 {const LD=new THREE.LineBasicMaterial({color:0x7d8693,transparent:true,opacity:.75}),LL=new THREE.LineBasicMaterial({color:0x5b636e,transparent:true,opacity:.9});const skip=new Set([WALLB,WALLF,WALLO,floor]);const add=[];
