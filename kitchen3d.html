@@ -54,7 +54,7 @@ const el=document.getElementById("three");
 const R=new THREE.WebGLRenderer({antialias:true,logarithmicDepthBuffer:true});R.setPixelRatio(Math.min(2,devicePixelRatio));R.setSize(el.clientWidth,el.clientHeight);el.appendChild(R.domElement);
 const S=new THREE.Scene();S.background=new THREE.Color(0xf3f6fb);
 const cam=new THREE.PerspectiveCamera(45,el.clientWidth/el.clientHeight,1,6000);cam.position.set(-260,620,1250);
-const ctl=new THREE.OrbitControls(cam,R.domElement);ctl.target.set(20,60,420);ctl.enableDamping=true;ctl.maxPolarAngle=Math.PI*0.48;ctl.minDistance=120;ctl.minAzimuthAngle=-Math.PI*0.75;ctl.maxAzimuthAngle=Math.PI*0.1;ctl.maxDistance=1600;ctl.update();
+const ctl=new THREE.OrbitControls(cam,R.domElement);ctl.target.set(20,60,420);ctl.enableDamping=true;ctl.maxPolarAngle=Math.PI*0.48;ctl.minDistance=120;ctl.minAzimuthAngle=-Infinity;ctl.maxAzimuthAngle=Infinity;ctl.maxDistance=1600;ctl.update();
 {const pm=new THREE.PMREMGenerator(R);const es=new THREE.Scene();const g=new THREE.SphereGeometry(500,32,16);const c=document.createElement("canvas");c.width=512;c.height=256;const x=c.getContext("2d");const gr=x.createLinearGradient(0,0,0,256);gr.addColorStop(0,"#ffffff");gr.addColorStop(.45,"#e9edf2");gr.addColorStop(.55,"#9aa3ad");gr.addColorStop(1,"#d9dde2");x.fillStyle=gr;x.fillRect(0,0,512,256);x.fillStyle="#ffffff";for(let i=0;i<6;i++)x.fillRect(40+i*80,20,40,14);
  const et=new THREE.CanvasTexture(c);et.mapping=THREE.EquirectangularReflectionMapping;S.environment=pm.fromEquirectangular(et).texture}
 R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=.95;R.shadowMap.enabled=true;
@@ -360,5 +360,5 @@ R.domElement.addEventListener("pointerdown",e=>{down=[e.clientX,e.clientY]});
 R.domElement.addEventListener("pointerup",e=>{if(down&&Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;const r=R.domElement.getBoundingClientRect();v.x=((e.clientX-r.left)/r.width)*2-1;v.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(v,cam);const h=ray.intersectObjects(picks)[0];if(!h){if(sel){sel.material=sel.userData.m0;sel=null}return}
   if(sel){sel.material=sel.userData.m0}sel=h.object;sel.userData.m0=sel.material;sel.material=sel.material.clone();if(sel.material.emissive)sel.material.emissive.setHex(0x0a2a6a);openCard(card(sel.userData.info))});
 addEventListener("resize",()=>{R.setSize(el.clientWidth,el.clientHeight);cam.aspect=el.clientWidth/el.clientHeight;cam.updateProjectionMatrix()});
-(function loop(){ctl.update();{const behind=cam.position.z>404;WALLL.visible=cam.position.x>-372;WALLS.visible=cam.position.z<892;}R.render(S,cam);requestAnimationFrame(loop)})();
+(function loop(){ctl.update();{const behind=cam.position.z>404;const ghost=(w,out)=>{w.visible=true;w.material.transparent=out;w.material.opacity=out?.12:1;w.material.depthWrite=!out};ghost(WALLL,cam.position.x<-372);ghost(WALLS,cam.position.z>892);ghost(WALLF,cam.position.x>418);ghost(WALLB,cam.position.z<-8);}R.render(S,cam);requestAnimationFrame(loop)})();
 </script>
