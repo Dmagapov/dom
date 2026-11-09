@@ -363,8 +363,9 @@ stool(25,IZ0-22);stool(85,IZ0-22);
   box(X0,38,Z0,BK,40,ZE-Z0,LE2,I);box(X0+BK,38,Z0,XC-X0-BK,40,BK,LE2,I);                  // backs (none on the chaise)
   const seats=[[X0+BK,Z0+BK,D-BK,D-BK],[X0+BK,Z0+D,D-BK,60],[X0+BK,Z0+D+60,D-BK,60],[X0+BK,Z0+D+120,D-BK,ZE-Z0-D-120-12],[X0+D,Z0+BK,(XC-X0-D)/2,D-BK],[X0+D+(XC-X0-D)/2,Z0+BK,(XC-X0-D)/2,D-BK],[XC,Z0,XE-XC,D]];
   for(const [x,z,w,d] of seats)box(x+.6,38,z+.6,w-1.2,10,d-1.2,LE,I);
-  const heads=[[X0,Z0,BK,D],[X0,Z0+D,BK,60],[X0,Z0+D+60,BK,60],[X0,Z0+D+120,BK,ZE-Z0-D-120],[X0+BK,Z0,D-BK,BK],[X0+D,Z0,(XC-X0-D)/2,BK],[X0+D+(XC-X0-D)/2,Z0,(XC-X0-D)/2,BK]];
-  for(const [x,z,w,d] of heads)box(x+.8,78,z+.8,w-1.6,13,d-1.6,LE,I);
+  const HB=38;   // backrests are wide flat cushions you can even sit on
+  const heads=[[X0,Z0,HB,D],[X0,Z0+D,HB,60],[X0,Z0+D+60,HB,60],[X0,Z0+D+120,HB,ZE-Z0-D-120],[X0+HB,Z0,D-HB,HB],[X0+D,Z0,(XC-X0-D)/2,HB],[X0+D+(XC-X0-D)/2,Z0,(XC-X0-D)/2,HB]];
+  for(const [x,z,w,d] of heads)rbox(x+.8,74,z+.8,w-1.6,11,d-1.6,LE,4,I);
   box(X0+BK,38,ZE-12,D-BK,18,12,LE2,I);                                                  // low armrest at the end of the long part
   for(const [x,z] of [[X0+4,Z0+4],[X0+4,ZE-8],[X0+D-6,ZE-8],[XE-8,Z0+4],[XE-8,Z0+D-8],[X0+D-6,Z0+D+40]])box(x,0,z,2,8,4,LEG,null,false)}
  // Spartherm 3RL-100h: three-sided glass fireplace in a white plastered block, shelf with firewood beside it
