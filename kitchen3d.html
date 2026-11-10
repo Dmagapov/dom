@@ -355,7 +355,7 @@ stool(25,IZ0-22);stool(85,IZ0-22);
 const bronze=canvasTex(512,512,(c,W,H)=>{c.fillStyle="#7a5a32";c.fillRect(0,0,W,H);let sd=17;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;for(let k=0;k<900;k++){const x=r()*W,y=r()*H,s=6+r()*40;const g=c.createRadialGradient(x,y,0,x,y,s);const l=r();g.addColorStop(0,l>.5?`rgba(214,170,96,${.25+r()*.35})`:`rgba(70,46,22,${.2+r()*.3})`);g.addColorStop(1,"rgba(0,0,0,0)");c.fillStyle=g;c.fillRect(x-s,y-s,2*s,2*s)}});bronze.wrapS=bronze.wrapT=THREE.RepeatWrapping;bronze.repeat.set(2,1);
 const BRZ=()=>new THREE.MeshStandardMaterial({map:bronze,metalness:.35,roughness:.55});   // bronze Venetian-plaster walls (video 10.11)
 const MBW=BRZ(),MBWW_M=BRZ(),MBX0=-193,MBX1=156,MBZ0=-486,MBZ1=-8;
-const MBN=box(MBX0-6,0,MBZ0-6,(-73)-(MBX0-6),260,6,MBW);box(115,0,MBZ0-6,MBX1+6-115,260,6,MBW);box(-73,0,MBZ0-6,188,12,6,MBW);box(-73,248,MBZ0-6,188,12,6,MBW);   // north wall with a window
+const MBN=box(MBX0-6,0,MBZ0-6,MBX1-MBX0+12,260,6,MBW);   // north wall: solid, no window (Dmitry 10.11)
 const MBWW=box(MBX0-6,0,MBZ0-6,6,260,(-400)-(MBZ0-6),MBWW_M);box(MBX0-6,0,-190,6,260,35,MBWW_M);box(MBX0-6,0,-75,6,260,67,MBWW_M);box(MBX0-6,248,-400,6,12,210,MBWW_M);box(MBX0-6,225,-155,6,35,80,MBWW_M);const MBE=BRZ();   // west wall: big window + French doors to the pergola
 box(MBX0,1,-8.6,(-183)-MBX0,258,.6,BRZ(),null,false);box(-93,1,-8.6,MBX1-(-93),258,.6,BRZ(),null,false);   // bronze face on the kitchen-side wall
 box(MBX1,0,MBZ0-6,6,260,(-116)-(MBZ0-6),MBE);box(MBX1,0,-16,6,260,8,MBE);box(MBX1,210,-116,6,50,100,MBE);
@@ -370,7 +370,6 @@ box(MBX1,0,MBZ0-6,6,260,(-116)-(MBZ0-6),MBE);box(MBX1,0,-16,6,260,8,MBE);box(MBX
  const paneW=(x,z,w,h,y,rotY)=>{const p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:bl,roughness:.6}));p.rotation.y=rotY;p.position.set(x,y,z);S.add(p)};
  paneW(MBX0-3,-295,200,232,128,Math.PI/2);box(MBX0-4,12,-400,5,4,210,FRW,null,false);box(MBX0-4,244,-400,5,4,210,FRW,null,false);box(MBX0,226,-402,14,20,214,CAS,null,false);
  for(const z of[-153,-114]){paneW(MBX0-3,z+19,34,200,112,Math.PI/2);box(MBX0-4,4,z,5,216,3,FRW,null,false);box(MBX0-4,4,z+36,5,216,3,FRW,null,false);box(MBX0-4,4,z,5,4,39,FRW,null,false);box(MBX0,206,z,14,18,39,CAS,null,false);box(MBX0+1,100,z+(z<-130?32:4),2,2,8,M(0xc9ced4,{metalness:1}),null,false)}
- paneW(21,MBZ0-3,184,232,130,0);box(-73,12,MBZ0-4,188,4,5,FRW,null,false);box(-73,244,MBZ0-4,188,4,5,FRW,null,false);box(-75,228,MBZ0,192,18,14,CAS,null,false);
  // air conditioner on the north wall
  rbox(-160,215,MBZ0,90,28,22,M(0xf7f7f6,{roughness:.35}),3,"Кондиционер (мастер-бедрум)");
  // boxspring bed with quilted headboard (video): beige base, white bedding, 6-panel headboard
