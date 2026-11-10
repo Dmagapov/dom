@@ -437,7 +437,7 @@ addEventListener("resize",()=>{R.setSize(el.clientWidth,el.clientHeight);cam.asp
 
 // ===== quick views: one tap flies the camera close to a zone, double-tap zooms to the spot =====
 const VIEWS=[["Весь дом",[-120,980,1150],[20,0,430]],["Кухня",[190,175,330],[190,90,30]],["Остров",[-150,190,260],[100,60,235]],["Холодильник",[200,170,290],[400,110,290]],
- ["Столовая",[-120,220,330],[-250,60,150]],["Гостиная",[-60,200,770],[-280,60,560]],["Камин",[-140,170,620],[-150,80,860]],["Шкаф-купе",[400,170,520],[284,120,519]],["Санузел",[100,330,600],[100,40,520]],["Спальня",[-17,560,-60],[-17,0,-250]],["Санузел спальни",[290,310,40],[300,40,-120]]];
+ ["Столовая",[-120,220,330],[-250,60,150]],["Гостиная",[-60,200,770],[-280,60,560]],["Камин",[-140,170,620],[-150,80,860]],["Шкаф-купе",[400,170,520],[284,120,519]],["Санузел",[100,330,600],[100,40,520]],["Спальня",[-17,560,-60],[-17,0,-250]],["Санузел спальни",[290,430,-40],[290,0,-105]]];
 let fl=null;function flyTo(p,t){const p0=cam.position.clone(),t0=ctl.target.clone(),P=new THREE.Vector3(...p),T=new THREE.Vector3(...t),st=performance.now();
   fl=()=>{const k=Math.min(1,(performance.now()-st)/650),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cam.position.lerpVectors(p0,P,e);ctl.target.lerpVectors(t0,T,e);if(k>=1)fl=null}}
 {const box=document.getElementById("views");VIEWS.forEach(([n,p,t],i)=>{const b=document.createElement("button");b.textContent=tr(n);b.onclick=()=>{box.querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");flyTo(p,t)};if(!i)b.classList.add("on");box.appendChild(b)})}
