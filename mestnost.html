@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Местность</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+html,body{margin:0;height:100%;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;background:#0d1b26}
+#map{position:absolute;inset:0}
+#bar{position:absolute;z-index:1000;left:8px;right:8px;top:8px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+#bar button{flex:0 0 auto;border:0;border-radius:999px;padding:8px 13px;font:600 14px/1 inherit;font-family:inherit;background:rgba(255,255,255,.92);color:#16324a;box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer}
+#bar button.on{background:linear-gradient(90deg,#1f4e9c,#2a9d8f);color:#fff}
+#lab{position:absolute;z-index:1000;right:8px;bottom:22px;background:rgba(255,255,255,.92);border-radius:10px;padding:6px 10px;font:600 13px/1.2 inherit;font-family:inherit;color:#16324a;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+</style></head><body>
+<div id="map"></div><div id="bar"></div><div id="lab"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+let L0=0;try{L0={ru:0,en:1,fi:2}[localStorage.getItem("dom_lang")]||0}catch(e){}
+const T=(r,e,f)=>[r,e,f][L0];
+const HOME=[61.15243,28.05783];
+const VIEWS=[
+ [T("Наш дом","Our house","Kotimme"),HOME,18],
+ [T("Участок и соседи","Plot and neighbours","Tontti ja naapurit"),HOME,16],
+ [T("Берег и острова","Shore and islands","Ranta ja saaret"),[61.150,28.06],14],
+ [T("Озеро Сайма вокруг","Lake Saimaa around us","Saimaa ympärillä"),[61.14,28.06],12],
+ [T("Тайпалсаари и Лаппеенранта","Taipalsaari and Lappeenranta","Taipalsaari ja Lappeenranta"),[61.1,28.1],10]];
+if(!window.L){document.getElementById("map").innerHTML='<p style="color:#fff;padding:60px 16px">'+T("Карта не загрузилась — проверьте интернет.","The map did not load — check the connection.","Kartta ei latautunut — tarkista yhteys.")+'</p>'}else{
+const map=L.map("map",{zoomControl:false,attributionControl:true}).setView(HOME,16);
+L.control.zoom({position:"bottomleft"}).addTo(map);
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:19,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"}).addTo(map);
+const names=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",{maxZoom:19});
+L.circleMarker(HOME,{radius:7,color:"#fff",weight:2,fillColor:"#e02020",fillOpacity:1}).addTo(map).bindTooltip(T("Наш дом","Our house","Kotimme"));
+const bar=document.getElementById("bar");
+VIEWS.forEach(([n,c,z],i)=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>{map.flyTo(c,z,{duration:1.2});[...bar.children].forEach((x,k)=>x.classList.toggle("on",k===i))};bar.appendChild(b)});
+bar.children[1].classList.add("on");
+const lab=document.getElementById("lab");let on=false;const upd=()=>lab.textContent=(on?"✓ ":"")+T("Названия","Names","Nimet");upd();
+lab.onclick=()=>{on=!on;on?names.addTo(map):map.removeLayer(names);upd()};
+}
+</script></body></html>
