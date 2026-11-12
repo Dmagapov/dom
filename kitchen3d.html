@@ -617,7 +617,7 @@ function showRoom(idx){const [name,rect,views]=ROOMS[idx];CUR=rect;
 function wallTick(){const t=ctl.target,c=cam.position;for(const [o,ax,wc] of WALLS3){if(!o.visible)continue;const k=ax==="x"?"x":"z";const out=(c[k]-wc[k])*(t[k]-wc[k])<0;o.material.transparent=out;o.material.opacity=out?.1:1;o.material.depthWrite=!out}}
 R.domElement.addEventListener("dblclick",e=>{const r=R.domElement.getBoundingClientRect();const v2=new THREE.Vector2(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);const rc=new THREE.Raycaster();rc.setFromCamera(v2,cam);const h=rc.intersectObjects(S.children,false).find(x=>x.object.visible&&x.object.isMesh&&!(x.object.material.transparent&&x.object.material.opacity<.2));
   if(h){const t=h.point.clone(),d=cam.position.clone().sub(ctl.target).setLength(130);flyTo(t.clone().add(d).toArray(),t.toArray())}});
-const START=(()=>{let hn="";try{hn=decodeURIComponent(location.hash.slice(1))}catch(e){}const k=ROOMS.findIndex(r=>r[0]===hn);return k>=0?k:1})();showRoom(START);
+let HV="";const START=(()=>{let hn="";try{hn=decodeURIComponent(location.hash.slice(1))}catch(e){}[hn,HV=""]=hn.split("/");HV=HV||"";const k=ROOMS.findIndex(r=>r[0]===hn);return k>=0?k:1})();showRoom(START);
 // ===== real textured LiDAR scans replace the hand-made rooms (master bedroom first, 10.11) =====
 let CURI=START;{const _sr=showRoom;showRoom=function(i){CURI=i;_sr(i)}}
 // wardrobe focus: looking at the sliding wardrobe hides everything else, so only the wardrobe is seen
@@ -630,6 +630,7 @@ let CURI=START;{const _sr=showRoom;showRoom=function(i){CURI=i;_sr(i)}}
  if(pl){S.children.forEach(o=>{if(o.isLight||o.userData.ext||(o.userData.plotPart&&o.material))return;if(o.visible){o.visible=false;HID.add(o)}})}
  else{const inALL=new Set(ALL.map(a=>a[0]));HID.forEach(o=>{if(!inALL.has(o))o.visible=true});HID.clear()}}}
 showRoom(START);
+if(HV){const vi=ROOMS[START][2].findIndex(v=>v[0]===HV);if(vi>0)setTimeout(()=>{const b=document.querySelectorAll(".vw")[vi];if(b)b.click()},60)}
 if(THREE.GLTFLoader)new THREE.GLTFLoader().load("scans/master_scan.glb",g=>{const m=g.scene.children[0]||g.scene;g.scene.traverse(o=>{if(o.isMesh){o.material.side=THREE.FrontSide;o.userData.info='<span class="tape">МБ</span> · Мастер-бедрум';picks.push(o)}});
   S.add(g.scene);const rect=[-200,156,-500,-8];
   for(const [o,b] of ALL){const c=b.getCenter(new THREE.Vector3());if(c.x>rect[0]&&c.x<rect[1]&&c.z>rect[2]&&c.z<rect[3])o.userData.hide=true}
