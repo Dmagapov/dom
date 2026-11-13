@@ -578,15 +578,17 @@ const ray=new THREE.Raycaster(),v=new THREE.Vector2();let sel=null,down=null;
 R.domElement.addEventListener("pointerdown",e=>{down=[e.clientX,e.clientY]});
 R.domElement.addEventListener("pointerup",e=>{if(down&&Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;const r=R.domElement.getBoundingClientRect();v.x=((e.clientX-r.left)/r.width)*2-1;v.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(v,cam);const h=ray.intersectObjects(picks).find(x=>{let o=x.object;while(o){if(!o.visible)return false;o=o.parent}return true});if(h&&h.object.userData.door!=null)return;if(!h){if(sel){sel.material=sel.userData.m0;sel=null}return}
   if(sel){sel.material=sel.userData.m0}sel=h.object;sel.userData.m0=sel.material;sel.material=sel.material.clone();if(sel.material.emissive)sel.material.emissive.setHex(0x0a2a6a);openCard(card(sel.userData.info))});
-addEventListener("resize",()=>{R.setSize(el.clientWidth,el.clientHeight);cam.aspect=el.clientWidth/el.clientHeight;cam.updateProjectionMatrix()});
+// narrow (portrait) screens get a wider lens instead of pulling the camera back through walls
+const FOV=()=>{cam.aspect=el.clientWidth/el.clientHeight;cam.fov=Math.min(78,Math.max(45,2*Math.atan(Math.tan(22.5*Math.PI/180)*1.25/cam.aspect)*180/Math.PI));cam.updateProjectionMatrix()};FOV();
+addEventListener("resize",()=>{R.setSize(el.clientWidth,el.clientHeight);FOV()});
 
 // ===== navigation by rooms: row 1 = rooms (only that room is drawn), row 2 = handy viewpoints + the room's drawer codes =====
-let fl=null;function flyTo(p,t){const p0=cam.position.clone(),t0=ctl.target.clone(),T=new THREE.Vector3(...t),P=new THREE.Vector3(...p);{const f=Math.min(2.2,Math.max(1,1.3/cam.aspect));P.sub(T).multiplyScalar(f).add(T)}const st=performance.now();   // portrait phones: step back so the whole thing fits
+let fl=null;function flyTo(p,t){const p0=cam.position.clone(),t0=ctl.target.clone(),T=new THREE.Vector3(...t),P=new THREE.Vector3(...p);{const f=Math.min(1.35,Math.max(1,1.3/cam.aspect));P.sub(T).multiplyScalar(f).add(T)}const st=performance.now();   // portrait phones: step back so the whole thing fits
   fl=()=>{const k=Math.min(1,(performance.now()-st)/650),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cam.position.lerpVectors(p0,P,e);ctl.target.lerpVectors(t0,T,e);if(k>=1)fl=null}}
 ctl.minDistance=30;ctl.maxDistance=7000;cam.far=30000;cam.updateProjectionMatrix();
 const ROOMS=[
  ["Весь дом",null,[["Сверху",[-120,980,1150],[20,0,430]]]],
- ["Кухня-гостиная",[-372,424,-10,900],[["Фасады кухни",[190,165,300],[190,90,30],[-40,424,-10,330]],["Остров",[100,165,75],[100,40,215],[-40,424,-10,330],[100,165,470],[100,40,270]],["Холодильник",[200,170,290],[400,110,290],[-40,424,-10,330]],["Стол",[-100,220,380],[-250,60,150],[-372,-40,-10,330]],["Диван",[60,230,700],[-250,60,560],[-372,-36,330,900]],["Стена с ТВ",[-280,150,520],[-36,130,520],[-372,-36,330,900]],["Камин",[-140,170,620],[-150,80,860],[-372,-36,330,900]],["Сверху",[-40,900,450],[30,0,440]]]],
+ ["Кухня-гостиная",[-372,424,-10,900],[["Фасады кухни",[190,165,300],[190,90,30],[-40,424,-10,330]],["Остров",[-120,190,80],[100,60,215],[-40,424,-10,330],[100,165,470],[100,40,270]],["Холодильник",[200,170,290],[400,110,290],[-40,424,-10,330]],["Стол",[-100,220,380],[-250,60,150],[-372,-40,-10,330]],["Диван",[-100,240,380],[-290,40,640],[-372,-36,330,900]],["Стена с ТВ",[-280,150,520],[-36,130,520],[-372,-36,330,900]],["Камин",[-140,170,620],[-150,80,860],[-372,-36,330,900]],["Сверху",[-40,900,450],[30,0,440]]]],
  ["Прихожая",[-36,424,330,900],[["Шкаф-купе",[614,140,519],[264,125,519]],["Дверь в санузел",[124,170,820],[124,100,634]],["Сверху",[190,620,900],[190,0,620]]]],
  ["Санузел",[-30,230,410,630],[["Сверху",[100,330,600],[100,40,520]]]],
  ["Спальня",[-200,156,-500,-8],[["Кровать",[-20,230,-40],[-20,40,-300]],["Рабочий стол",[-60,170,-330],[-130,80,-470]],["Сверху",[-17,560,-60],[-17,0,-250]]]],
@@ -599,7 +601,7 @@ const CODES=[];{const seen=new Set();for(const o of picks){const m=(o.userData.i
  const num=c=>(c[0]==="Ш"?100:0)+parseInt(c.slice(1));CODES.sort((a,b)=>num(a[0])-num(b[0]))}
 let CUR=null;
 function showRoom(idx){const [name,rect,views]=ROOMS[idx];CUR=rect;
- const AR=r=>{CUR=r;for(const [o,b] of ALL)o.visible=!o.userData.hide&&(!r||(b.max.x>r[0]-4&&b.min.x<r[1]+4&&b.max.z>r[2]-4&&b.min.z<r[3]+4))};AR(views[0][3]||rect);
+ const PL=name==="Участок";const AR=r=>{CUR=r;for(const [o,b] of ALL)o.visible=PL?!!(o.userData.ext||(o.userData.plotPart&&o.material)):(!o.userData.hide&&!o.userData.ext&&(!r||(b.max.x>r[0]-4&&b.min.x<r[1]+4&&b.max.z>r[2]-4&&b.min.z<r[3]+4)))};AR(views[0][3]||rect);
  S.children.forEach(o=>{if(o.userData.outline)o.visible=!rect});
  document.querySelectorAll("#views button").forEach((b,k)=>b.classList.toggle("on",k===idx));
  const row=document.getElementById("codes");row.innerHTML="";
@@ -622,7 +624,7 @@ let CURI=START;{const _sr=showRoom;showRoom=function(i){CURI=i;_sr(i)}}
 {let foc=false;const inW=b=>b.max.x>214&&b.min.x<300&&b.max.z>404&&b.min.z<640;const _fly=flyTo;
  flyTo=function(p,t){const w=t[0]>200&&t[0]<320&&t[2]>400&&t[2]<640&&t[1]<260;
   if(w&&!foc){foc=true;for(const [o,b] of ALL)if(o!==floor&&!inW(b))o.visible=false;S.children.forEach(o=>{if(o.userData.outline||o.isLineSegments)o.visible=false})}
-  else if(!w&&foc){foc=false;const r=CUR;for(const [o,b] of ALL)o.visible=!o.userData.hide&&(!r||(b.max.x>r[0]-4&&b.min.x<r[1]+4&&b.max.z>r[2]-4&&b.min.z<r[3]+4));S.children.forEach(o=>{if(o.userData.outline)o.visible=!r;else if(o.isLineSegments)o.visible=true})}
+  else if(!w&&foc){foc=false;const r=CUR;for(const [o,b] of ALL)o.visible=!o.userData.hide&&!o.userData.ext&&(!r||(b.max.x>r[0]-4&&b.min.x<r[1]+4&&b.max.z>r[2]-4&&b.min.z<r[3]+4));S.children.forEach(o=>{if(o.userData.outline)o.visible=!r;else if(o.isLineSegments)o.visible=true})}
   _fly(p,t)}}
 {const _s3=showRoom,HID=new Set();showRoom=function(i){_s3(i);const pl=ROOMS[i][0]==="Участок";EXT.forEach(m=>m.visible=pl);
  if(pl){S.children.forEach(o=>{if(o.isLight||o.userData.ext||(o.userData.plotPart&&o.material))return;if(o.visible){o.visible=false;HID.add(o)}})}
