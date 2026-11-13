@@ -25,6 +25,7 @@ h1{font-size:1.5rem;margin:4px 0 2px}
 .pop[hidden]{display:none}
 .sheet{background:var(--card);color:var(--ink);width:min(560px,100%);max-height:86vh;border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;animation:u .22s ease-out}
 .sheet.wide{width:min(900px,100%);height:86vh}
+.sheet.withpv{height:82vh}.sheet.withpv #pbody{display:flex;flex-direction:column;padding:0;flex:1;min-height:0}.pv{flex:0 0 48%;min-height:0;background:radial-gradient(circle at 50% 40%,#ffffff,#e9edf2 70%);touch-action:none}.pv canvas{display:block}.sheet.withpv #pbody>:not(.pv){padding:0 16px}.sheet.withpv #pbody>.ct{padding-top:12px}.sheet.withpv #pbody{overflow:auto}.sheet.withpv #pbody>.mbtn{align-self:flex-start;margin:10px 16px}
 .ph{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
 .ph .x{margin-left:auto;border:0;background:none;color:var(--muted);font-size:1.6rem;line-height:1;cursor:pointer;padding:4px 8px}
 #pbody{padding:14px 16px 18px;overflow:auto}
@@ -184,10 +185,10 @@ const tex=t=>{const c=document.createElement("canvas");c.width=128;c.height=64;c
 function tape(code,x,y,z,rotY){const p=new THREE.Mesh(new THREE.PlaneGeometry(20,10),new THREE.MeshBasicMaterial({map:tex(code)}));p.position.set(x,y,z);p.rotation.y=rotY||0;S.add(p)}
 function handle(x,y,z,w,rotY){const h=box(0,0,0,w,1.6,1.6,CHROME);h.position.set(x,y,z);h.rotation.y=rotY||0}
 // ---- room ----
-const marble=(()=>{const t=canvasTex(1024,1024,(c,W,H)=>{c.fillStyle="#eeeeec";c.fillRect(0,0,W,H);let sd=11;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
-  for(let k=0;k<26;k++){c.strokeStyle=`rgba(150,152,155,${.12+r()*.22})`;c.lineWidth=.6+r()*1.8;c.beginPath();let x=r()*W,y=r()*H;c.moveTo(x,y);for(let i=0;i<14;i++){x+=(r()-.3)*90;y+=(r()-.5)*70;c.lineTo(x,y)}c.stroke()}
+const marble=(()=>{const t=canvasTex(1024,1024,(c,W,H)=>{c.fillStyle="#e6e4df";c.fillRect(0,0,W,H);let sd=11;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  for(let k=0;k<26;k++){c.strokeStyle=`rgba(120,122,126,${.18+r()*.3})`;c.lineWidth=.6+r()*1.8;c.beginPath();let x=r()*W,y=r()*H;c.moveTo(x,y);for(let i=0;i<14;i++){x+=(r()-.3)*90;y+=(r()-.5)*70;c.lineTo(x,y)}c.stroke()}
   c.fillStyle="rgba(255,255,255,.25)";for(let i=0;i<400;i++)c.fillRect(r()*W,r()*H,2,2);
-  c.fillStyle="#d4d5d6";c.fillRect(0,0,W,3);c.fillRect(0,H/2,W,3);c.fillRect(0,0,3,H)});t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(800/120,560/120);return t})();
+  c.fillStyle="#9a9b9d";c.fillRect(0,0,W,2);c.fillRect(0,H/2,W,2);c.fillRect(0,0,2,H);c.fillRect(W/2,0,2,H)});t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(800/120,910/120);return t})();
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(800,910),new THREE.MeshPhysicalMaterial({map:marble,roughness:.18,clearcoat:.6,clearcoatRoughness:.1}));floor.rotation.x=-Math.PI/2;floor.position.set(27,-0.5,445);S.add(floor);
 const WBM=M(0xeef1f5);const WALLB=box(-372,0,-8,189,260,6,WBM);box(-93,0,-8,517,260,6,WBM);box(-183,210,-8,90,50,6,WBM);   // back wall with the master-bedroom door (x −146…−56)WALLB.visible=true;
 const WALLF=box(418,0,-8,6,260,906,M(0xeef1f5));
@@ -542,7 +543,7 @@ const EXT=[];{const WM=M(0xf1efe9,{roughness:.9}),RM=new THREE.MeshStandardMater
    box(x+3,0,z+2,W-6,1.2,2,CHRM);box(x+3,0,z+D-4,W-6,1.2,2,CHRM)};
  for(const cx of[TX+12,TX+82,TX+152]){chair(cx,TZ-34,1);chair(cx,TZ+88,-1)}
  // corner sofa (photo + video): cream leather; long part with its back to the left-wall window, short part into the room ending in a chaise; adjustable headrests, chrome blade legs
- {const LE=new THREE.MeshPhysicalMaterial({color:0x946330,roughness:.5,clearcoat:.2}),LE2=new THREE.MeshPhysicalMaterial({color:0x5a3818,roughness:.55,clearcoat:.15}),LEG=M(0xdfe3e7,{metalness:1,roughness:.12});const I="Угловой диван";
+ {const LE=new THREE.MeshPhysicalMaterial({color:0xc9a673,roughness:.5,clearcoat:.15}),LE2=LE,LEG=M(0xdfe3e7,{metalness:1,roughness:.12});const I="Угловой диван";
   const X0=-366,Z0=420,D=100,BK=22,ZE=700,XE=-106,XC=-176;          // XC: where the chaise starts
   box(X0,8,Z0,D,30,ZE-Z0,LE2,I);box(X0+D,8,Z0,XE-X0-D,30,D,LE2,I);                         // bases
   box(X0,38,Z0,BK,40,ZE-Z0,LE2,I);box(X0+BK,38,Z0,XC-X0-BK,40,BK,LE2,I);                  // backs (none on the chaise)
@@ -550,11 +551,12 @@ const EXT=[];{const WM=M(0xf1efe9,{roughness:.9}),RM=new THREE.MeshStandardMater
   for(const [x,z,w,d] of seats)box(x+.6,38,z+.6,w-1.2,10,d-1.2,LE,I);
   const HB=38;   // backrests are wide flat cushions you can even sit on
   const heads=[[X0,Z0,HB,D],[X0,Z0+D,HB,60],[X0,Z0+D+60,HB,60],[X0,Z0+D+120,HB,ZE-Z0-D-120],[X0+HB,Z0,D-HB,HB],[X0+D,Z0,(XC-X0-D)/2,HB],[X0+D+(XC-X0-D)/2,Z0,(XC-X0-D)/2,HB]];
-  for(const [x,z,w,d] of heads)rbox(x+.8,74,z+.8,w-1.6,11,d-1.6,new THREE.MeshPhysicalMaterial({color:0xb0804a,roughness:.5,clearcoat:.2}),4,I);
+  for(const [x,z,w,d] of heads)rbox(x+.8,74,z+.8,w-1.6,11,d-1.6,LE,4,I);
   box(X0+BK,38,ZE-12,D-BK,18,12,LE2,I);                                                  // low armrest at the end of the long part
   for(const [x,z] of [[X0+4,Z0+4],[X0+4,ZE-8],[X0+D-6,ZE-8],[XE-8,Z0+4],[XE-8,Z0+D-8],[X0+D-6,Z0+D+40]])box(x,0,z,2,8,4,LEG,null,false)}
+ {const EM=new THREE.LineBasicMaterial({color:0x3d2814});S.children.filter(m=>m.isMesh&&m.userData.info==="Угловой диван").forEach(m=>{const l=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry,25),EM);m.add(l)})}
  // Spartherm 3RL-100h: three-sided glass fireplace in a white plastered block, shelf with firewood beside it
- const FX=-206,FZ0=800;box(FX,0,FZ0,115,40,90,PL);box(FX,105,FZ0,115,75,90,PL,"Камин Spartherm 3RL-100h (трёхсторонний)");
+ const FX=-206,FZ0=800;box(FX,0,FZ0,115,40,90,PL);box(FX,105,FZ0,115,155,90,PL,"Камин Spartherm 3RL-100h (трёхсторонний)");
  const fire=canvasTex(256,128,(c,W,H)=>{c.fillStyle="#0c0c0d";c.fillRect(0,0,W,H);for(let i=0;i<5;i++){c.fillStyle="#5a3a22";c.fillRect(30+i*40,H-26-(i%2)*6,46,12)}const g=c.createRadialGradient(W/2,H-20,4,W/2,H-30,70);g.addColorStop(0,"rgba(255,200,90,.9)");g.addColorStop(.5,"rgba(255,110,30,.45)");g.addColorStop(1,"rgba(0,0,0,0)");c.fillStyle=g;c.fillRect(0,0,W,H)});
  const fb=new THREE.Mesh(new THREE.BoxGeometry(105,64,80),[M(0x111),M(0x111),M(0x111),M(0x111),new THREE.MeshStandardMaterial({map:fire,emissive:0xff8a3d,emissiveIntensity:.25,emissiveMap:fire}),M(0x111)]);
  fb.position.set(FX+57.5,40+32.5,FZ0+42);fb.material[1]=new THREE.MeshStandardMaterial({map:fire,emissive:0xff8a3d,emissiveIntensity:.35,emissiveMap:fire});fb.material[0]=fb.material[1];fb.material[5]=fb.material[1];fb.userData.info="Камин Spartherm 3RL-100h (трёхсторонний)";S.add(fb);picks.push(fb);
@@ -577,10 +579,10 @@ S.traverse(o=>{if(o.isMesh&&!o.material.transparent){o.castShadow=true;o.receive
 // ---- picking ----
 const ray=new THREE.Raycaster(),v=new THREE.Vector2();let sel=null,down=null;
 R.domElement.addEventListener("pointerdown",e=>{down=[e.clientX,e.clientY]});
-R.domElement.addEventListener("pointerup",e=>{if(down&&Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;const r=R.domElement.getBoundingClientRect();v.x=((e.clientX-r.left)/r.width)*2-1;v.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(v,cam);const h=ray.intersectObjects(picks).find(x=>{let o=x.object;while(o){if(!o.visible)return false;o=o.parent}return true});if(h&&h.object.userData.door!=null)return;if(!h){if(sel){sel.material=sel.userData.m0;sel=null}return}
-  if(sel){sel.material=sel.userData.m0}sel=h.object;sel.userData.m0=sel.material;sel.material=sel.material.clone();if(sel.material.emissive)sel.material.emissive.setHex(0x0a2a6a);openCard(card(sel.userData.info))});
+R.domElement.addEventListener("pointerup",e=>{if(down&&Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;const r=R.domElement.getBoundingClientRect();v.x=((e.clientX-r.left)/r.width)*2-1;v.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(v,cam);const hs=ray.intersectObjects(S.children,true).filter(x=>{const o0=x.object;if(!o0.isMesh||!o0.material||o0.material.visible===false||(o0.material.transparent&&o0.material.opacity<.35))return false;let o=o0;while(o){if(!o.visible)return false;o=o.parent}return true});let h=hs[0];if(h&&!h.object.userData.info&&h.object.userData.door==null){const n=hs.find(x=>x.distance<h.distance+4&&(x.object.userData.info||x.object.userData.door!=null));h=n||null}if(h&&h.object.userData.door!=null)return;if(!h){if(sel){sel.material=sel.userData.m0;sel=null}return}
+  if(sel){sel.material=sel.userData.m0}sel=h.object;sel.userData.m0=sel.material;sel.material=sel.material.clone();if(sel.material.emissive)sel.material.emissive.setHex(0x0a2a6a);{const L=itemSet(sel);PV=L&&L.length?{meshes:L,dir:ctl.target.clone().sub(cam.position)}:null}openCard(card(sel.userData.info))});
 // narrow (portrait) screens get a wider lens instead of pulling the camera back through walls
-const FOV=()=>{cam.aspect=el.clientWidth/el.clientHeight;const B=typeof WBASE==="number"?WBASE:45;cam.fov=Math.min(B+33,Math.max(B,2*Math.atan(Math.tan(B/2*Math.PI/180)*1.25/cam.aspect)*180/Math.PI));cam.updateProjectionMatrix()};FOV();
+const FOV=()=>{cam.aspect=el.clientWidth/el.clientHeight;const B=typeof WBASE==="number"?WBASE:45;cam.fov=Math.min(B+(B>45?20:33),Math.max(B,2*Math.atan(Math.tan(B/2*Math.PI/180)*1.25/cam.aspect)*180/Math.PI));cam.updateProjectionMatrix()};FOV();
 addEventListener("resize",()=>{R.setSize(el.clientWidth,el.clientHeight);FOV()});
 
 // ===== navigation by rooms: row 1 = rooms (only that room is drawn), row 2 = handy viewpoints + the room's drawer codes =====
@@ -631,6 +633,28 @@ let CURI=START;{const _sr=showRoom;showRoom=function(i){CURI=i;_sr(i)}}
  if(pl){S.children.forEach(o=>{if(o.isLight||o.userData.ext||(o.userData.plotPart&&o.material))return;if(o.visible){o.visible=false;HID.add(o)}})}
  else{const inALL=new Set(ALL.map(a=>a[0]));HID.forEach(o=>{if(!inALL.has(o))o.visible=true});HID.clear()}}}
 
+
+// ===== card: the tapped thing is shown by itself in the top half (turn it with a finger), the description below =====
+let PV=null;
+const PR=(()=>{let r=null,sc=null,cm=null,oc=null,run=false,wrap=null;
+ function init(){wrap=document.createElement("div");wrap.className="pv";r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setPixelRatio(Math.min(devicePixelRatio,1.75));r.outputEncoding=THREE.sRGBEncoding;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=.9;wrap.appendChild(r.domElement);
+  sc=new THREE.Scene();sc.environment=S.environment;sc.add(new THREE.HemisphereLight(0xffffff,0x8a94a3,.6));const d=new THREE.DirectionalLight(0xffffff,.8);d.position.set(200,400,300);sc.add(d);
+  cm=new THREE.PerspectiveCamera(35,1,1,5000);oc=new THREE.OrbitControls(cm,r.domElement);oc.enableDamping=true;oc.enablePan=false;oc.autoRotate=true;oc.autoRotateSpeed=1.6;
+  (function loop(){if(run&&wrap.isConnected){const w=wrap.clientWidth,h=wrap.clientHeight;if(w&&h&&(r.domElement.width!==Math.round(w*r.getPixelRatio())||r.domElement.height!==Math.round(h*r.getPixelRatio()))){r.setSize(w,h,false);r.domElement.style.width=w+"px";r.domElement.style.height=h+"px";cm.aspect=w/h;cm.updateProjectionMatrix()}oc.update();r.render(sc,cm)}requestAnimationFrame(loop)})()}
+ function show(meshes,fromDir){if(!r)init();while(sc.children.length>2)sc.remove(sc.children[2]);const g=new THREE.Group();
+  for(const m of meshes){const mat=m===sel&&m.userData.m0?m.userData.m0:m.material;const c=new THREE.Mesh(m.geometry,mat);m.updateWorldMatrix(true,false);c.applyMatrix4(m.matrixWorld);g.add(c);m.children.forEach(ch=>{if(ch.isLineSegments){const l=ch.clone();l.applyMatrix4(m.matrixWorld);g.add(l)}})}
+  sc.add(g);const b=new THREE.Box3().setFromObject(g),ctr=b.getCenter(new THREE.Vector3()),sz=b.getSize(new THREE.Vector3()),R0=Math.max(sz.x,sz.y,sz.z)*.62+2;
+  const D=R0/Math.sin(cm.fov*Math.PI/360)*1.05,dir=fromDir.clone().setY(0);if(dir.lengthSq()<1e-4)dir.set(0,0,1);dir.normalize().multiplyScalar(-1).setY(.35).normalize();
+  oc.target.copy(ctr);cm.position.copy(ctr).addScaledVector(dir,D);cm.near=Math.max(.5,D/50);cm.far=D*10;cm.updateProjectionMatrix();oc.minDistance=D*.4;oc.maxDistance=D*2.5;run=true;return wrap}
+ function stop(){run=false}
+ return{show,stop}})();
+function itemSet(m){const inf=m.userData.info;let L=[];S.traverse(o=>{if(o.isMesh&&o.userData.info===inf&&o.visible){let q=o,ok=true;while(q){if(!q.visible){ok=false;break}q=q.parent}if(ok)L.push(o)}});
+ // things with the same name far apart (e.g. same label elsewhere) → keep only the parts near the tapped one
+ const c0=new THREE.Box3().setFromObject(m).getCenter(new THREE.Vector3());L=L.filter(o=>new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()).distanceTo(c0)<260);
+ const B=new THREE.Box3();L.forEach(o=>B.expandByObject(o));const bs=B.getSize(new THREE.Vector3());if(Math.max(bs.x,bs.z)>420)return null;   // floors, rooms: no picture
+ const E=B.clone().expandByScalar(2.5);S.traverse(o=>{if(o.isMesh&&!L.includes(o)&&o.visible&&!o.userData.info&&o.material&&!(o.material.transparent&&o.material.opacity<.35)){const bb=new THREE.Box3().setFromObject(o);if(E.containsBox(bb))L.push(o)}});return L}
+{const _oc=openCard;openCard=function(h){_oc(h);if(PV){const w=PR.show(PV.meshes,PV.dir);pbody.insertBefore(w,pbody.firstChild);sheet.classList.add("withpv")}else{sheet.classList.remove("withpv");PR.stop()}}}
+{const _cp=closePop;closePop=function(){PV=null;PR.stop();sheet.classList.remove("withpv");_cp()}}
 // ===== hinged doors: tap → the door swings open and you walk into the room =====
 const SWING=[];
 {const near=(m,x0,x1,z0,z1)=>{const b=new THREE.Box3().setFromObject(m);return b.min.x>=x0-.5&&b.max.x<=x1+.5&&b.min.z>=z0-.5&&b.max.z<=z1+.5&&b.max.y<215};
@@ -654,13 +678,13 @@ const codesEl=document.getElementById("codes");
 function setLook(pos,dirV){ctl.target.copy(pos).addScaledVector(dirV,10);cam.position.copy(pos);ctl.update()}
 let wtw=null;
 function moveTo(P1,D1,instant){fl=null;if(instant){setLook(P1,D1);return}
- const P0=cam.position.clone(),D0=ctl.target.clone().sub(cam.position).normalize(),st=performance.now(),dur=Math.min(1200,300+P0.distanceTo(P1)*2.4);
+ const P0=cam.position.clone(),D0=ctl.target.clone().sub(cam.position).normalize(),st=performance.now(),dur=Math.min(2200,700+P0.distanceTo(P1)*3.2);
  wtw=()=>{const u=Math.min(1,(performance.now()-st)/dur),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;setLook(P0.clone().lerp(P1,e),D0.clone().lerp(D1,e).normalize());if(u>=1)wtw=null}}
 (function wl(){if(wtw)wtw();requestAnimationFrame(wl)})();
 function showInterior(){for(const [o,b] of ALL)o.visible=!o.userData.hide&&!o.userData.ext;S.children.forEach(o=>{if(o.userData.outline)o.visible=false})}
 function enterWalk(name){if(!ORB)ORB={minD:ctl.minDistance,maxD:ctl.maxDistance,z:ctl.enableZoom,pan:ctl.enablePan,rs:ctl.rotateSpeed,maxPA:ctl.maxPolarAngle,minPA:ctl.minPolarAngle};
  WALK=name;ctl.minDistance=ctl.maxDistance=10;ctl.enableZoom=false;ctl.enablePan=false;ctl.rotateSpeed=-.6;ctl.maxPolarAngle=Math.PI*.9;ctl.minPolarAngle=Math.PI*.1;
- WBASE=62;FOV();showInterior();
+ WBASE=55;FOV();showInterior();
  const [p,l]=WSTART[name],P1=new THREE.Vector3(p[0],EYE,p[1]),D1=new THREE.Vector3(...l).sub(P1).normalize();moveTo(P1,D1,cam.position.distanceTo(P1)>600);
  if(codesEl)codesEl.style.display="none";if(barEl)barEl.textContent=TT("Нажмите на что угодно — подойдёте к этому. Ещё раз — откроется. Тяните пальцем — осмотреться.")}
 function exitWalk(){if(!WALK)return;WALK=null;wtw=null;if(ORB){ctl.minDistance=ORB.minD;ctl.maxDistance=ORB.maxD;ctl.enableZoom=ORB.z;ctl.enablePan=ORB.pan;ctl.rotateSpeed=ORB.rs;ctl.maxPolarAngle=ORB.maxPA;ctl.minPolarAngle=ORB.minPA;ORB=null}
@@ -682,11 +706,12 @@ function exitWalk(){if(!WALK)return;WALK=null;wtw=null;if(ORB){ctl.minDistance=O
   const isFloor=h.point.y<6&&(!h.face||Math.abs(h.face.normal.clone().transformDirection(h.object.matrixWorld).y)>.8);
   const P0=cam.position.clone(),hp=h.point.clone(),hd=Math.hypot(hp.x-P0.x,hp.z-P0.z);
   // a thing that is already close → the normal tap (card, door) does its job
-  if(!isFloor&&hd<170)return;
+  if(!isFloor&&hd<190)return;
   e.stopPropagation();
   // walk up to it: to the tapped floor spot, or ~1.1 m in front of the tapped thing, facing it
   const dir=new THREE.Vector3(hp.x-P0.x,0,hp.z-P0.z);if(dir.length()<20)return;dir.normalize();
-  let dist=isFloor?hd:hd-110;
+  const ob=new THREE.Box3().setFromObject(h.object),os=ob.getSize(new THREE.Vector3()),big=Math.max(os.x,os.y,os.z);
+  let dist=isFloor?hd:hd-Math.max(150,Math.min(320,big*1.5));
   const obs=solid().filter(o=>o!==floor&&!(o.userData.plotPart)&&o!==h.object);
   for(const y of[45,120]){rc.set(new THREE.Vector3(P0.x,y,P0.z),dir);rc.far=dist+45;const hh=rc.intersectObjects(obs,false)[0];if(hh)dist=Math.min(dist,hh.distance-45)}
   rc.far=Infinity;
