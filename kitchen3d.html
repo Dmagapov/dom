@@ -21,11 +21,11 @@ h1{font-size:1.5rem;margin:4px 0 2px}
 .ct{font-weight:650;margin-bottom:6px}.cl{margin:6px 0 0;padding-left:18px;max-height:42vh;overflow:auto}.cl li{margin:2px 0}.cl li.sub{list-style:none;margin-left:-18px;margin-top:8px;font-weight:600;color:#3b5a8a}.muted{opacity:.6}.mbtn{display:inline-block;margin-top:8px;padding:9px 14px;border-radius:12px;background:#1f5fbf;color:#fff;text-decoration:none;font-weight:600}
 .top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
 .back,.pb{display:inline-flex;align-items:center;gap:6px;border:0;background:linear-gradient(135deg,#2242AA,#3FA68C);color:#fff;font:600 1rem var(--f);padding:9px 16px;border-radius:999px;text-decoration:none;cursor:pointer}
-.pop{position:fixed;inset:0;z-index:50;background:rgba(10,16,30,.45);display:flex;align-items:flex-end;justify-content:center;padding:12px;animation:f .18s}
+.pop{position:fixed;inset:0;z-index:50;background:rgba(10,16,30,.45);display:flex;align-items:center;justify-content:center;padding:12px;animation:f .18s}
 .pop[hidden]{display:none}
 .sheet{background:var(--card);color:var(--ink);width:min(560px,100%);max-height:86vh;border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;animation:u .22s ease-out}
 .sheet.wide{width:min(900px,100%);height:86vh}
-.sheet.withpv{height:82vh}.sheet.withpv #pbody{display:flex;flex-direction:column;padding:0;flex:1;min-height:0}.pv{flex:0 0 48%;min-height:0;background:radial-gradient(circle at 50% 40%,#ffffff,#e9edf2 70%)}.pv canvas{display:block}.sheet.withpv #pbody>:not(.pv){padding:0 16px}.sheet.withpv #pbody>.ct{padding-top:12px}.sheet.withpv #pbody{overflow:auto}.sheet.withpv #pbody>.mbtn{align-self:flex-start;margin:10px 16px}
+.sheet.withpv{height:min(78vh,720px)}.sheet.withpv #pbody{display:flex;flex-direction:column;padding:0;flex:1;min-height:0}.pv{flex:0 0 48%;min-height:0;background:radial-gradient(circle at 50% 40%,#ffffff,#e9edf2 70%)}.pv canvas{display:block}.sheet.withpv #pbody>:not(.pv){padding:0 16px}.sheet.withpv #pbody>.ct{padding-top:12px}.sheet.withpv #pbody{overflow:auto}.sheet.withpv #pbody>.mbtn{align-self:flex-start;margin:10px 16px}
 .ph{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
 .ph .x{margin-left:auto;border:0;background:none;color:var(--muted);font-size:1.6rem;line-height:1;cursor:pointer;padding:4px 8px}
 #pbody{padding:14px 16px 18px;overflow:auto}
@@ -639,10 +639,12 @@ let CURI=START;{const _sr=showRoom;showRoom=function(i){CURI=i;_sr(i)}}
 
 
 // ===== things without their own label get a simple one, so a tap always answers =====
-{const ISL="Остров (белый искусственный камень)";S.traverse(o=>{if(!o.isMesh||o.userData.info||o.userData.ext||o.userData.plotPart||o.userData.door!=null||o.userData.swing!=null)return;
+{const ISL="Остров (белый искусственный камень)";const LAB=[];S.traverse(o=>{if(o.isMesh&&o.userData.info&&!o.userData.ext&&!o.userData.plotPart){const bb=new THREE.Box3().setFromObject(o),ss=bb.getSize(new THREE.Vector3());if(Math.max(ss.x,ss.z)<300)LAB.push([o.userData.info,bb])}});S.traverse(o=>{if(!o.isMesh||o.userData.info||o.userData.ext||o.userData.plotPart||o.userData.door!=null||o.userData.swing!=null)return;
  const b=new THREE.Box3().setFromObject(o),s=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3());if(Math.max(s.x,s.y,s.z)<8||Math.max(s.x,s.z)>400)return;
  if(o.material&&o.material.color&&o.material.color.getHex()===0xeef1f5)return;   // plain walls
  let inf=null;
+ // a handle, label or panel that sits on a labelled thing (drawer front, appliance) belongs to it
+ {const E=b.clone();let best=null,bv=1e12;for(const q of LAB){const qb=q[1];if(qb.clone().expandByScalar(3).containsBox(E)||(qb.clone().expandByScalar(3).intersectsBox(E)&&Math.max(s.x,s.y,s.z)<60)){const v=qb.getSize(new THREE.Vector3());const vol=v.x*v.y*v.z;if(vol<bv){bv=vol;best=q[0]}}}if(best){o.userData.info=best;picks.push(o);return}}
  if(c.x>-6&&c.x<417&&c.z>-2&&c.z<63&&b.max.y<241)inf="Кухонный шкаф";
  else if(c.x>-8&&c.x<211&&c.z>183&&c.z<291&&b.max.y<95)inf=ISL;
  else if(c.x<-360||c.x>404)inf="Окно";
