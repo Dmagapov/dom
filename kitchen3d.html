@@ -25,7 +25,7 @@ h1{font-size:1.5rem;margin:4px 0 2px}
 .pop[hidden]{display:none}
 .sheet{background:var(--card);color:var(--ink);width:min(560px,100%);max-height:86vh;border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;animation:u .22s ease-out}
 .sheet.wide{width:min(900px,100%);height:86vh}
-.sheet.withpv{height:min(78vh,720px)}.pop.low{align-items:flex-end!important;background:rgba(10,16,30,.1)!important}.sheet.low{max-height:46vh}.sheet.withpv #pbody{display:flex;flex-direction:column;padding:0;flex:1;min-height:0}.pv{flex:0 0 48%;min-height:0;background:radial-gradient(circle at 50% 40%,#ffffff,#e9edf2 70%)}.pv canvas{display:block}.sheet.withpv #pbody>:not(.pv){padding:0 16px}.sheet.withpv #pbody>.ct{padding-top:12px}.sheet.withpv #pbody{overflow:auto}.sheet.withpv #pbody>.mbtn{align-self:flex-start;margin:10px 16px}
+.sheet.withpv{height:min(78vh,720px)}.sheet{max-height:min(80vh,760px)!important}#pbody{overflow:auto;-webkit-overflow-scrolling:touch}.sheet.withpv #pbody{display:flex;flex-direction:column;padding:0;flex:1;min-height:0}.pv{flex:0 0 48%;min-height:0;background:radial-gradient(circle at 50% 40%,#ffffff,#e9edf2 70%)}.pv canvas{display:block}.sheet.withpv #pbody>:not(.pv){padding:0 16px}.sheet.withpv #pbody>.ct{padding-top:12px}.sheet.withpv #pbody{overflow:auto}.sheet.withpv #pbody>.mbtn{align-self:flex-start;margin:10px 16px}
 .ph{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
 .ph .x{margin-left:auto;border:0;background:none;color:var(--muted);font-size:1.6rem;line-height:1;cursor:pointer;padding:4px 8px}
 #pbody{padding:14px 16px 18px;overflow:auto}
@@ -650,7 +650,7 @@ let CURI=START;{const _sr=showRoom;showRoom=function(i){CURI=i;_sr(i)}}
  if(inf){o.userData.info=inf;picks.push(o)}})}
 // ===== card: the tapped thing is shown by itself in the top half (still picture), the description below =====
 let PV=null;
-function openFor(m){sheet.classList.toggle("low",!!kindOf(m));pop.classList.toggle("low",!!kindOf(m));if(sel){sel.material=sel.userData.m0}sel=m;sel.userData.m0=sel.material;sel.material=sel.material.clone();if(sel.material.emissive)sel.material.emissive.setHex(0x0a2a6a);const L=itemSet(sel);PV=L&&L.length?{meshes:L,dir:ctl.target.clone().sub(cam.position)}:null;openCard(card(sel.userData.info))}
+function openFor(m){if(sel){sel.material=sel.userData.m0}sel=m;sel.userData.m0=sel.material;const L=itemSet(sel);PV=L&&L.length?{meshes:L,dir:ctl.target.clone().sub(cam.position)}:null;openCard(card(sel.userData.info))}
 const PR=(()=>{let r=null,sc=null,cm=null,oc=null,run=false,wrap=null;
  function init(){wrap=document.createElement("div");wrap.className="pv";r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setPixelRatio(Math.min(devicePixelRatio,1.75));r.outputEncoding=THREE.sRGBEncoding;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=.9;wrap.appendChild(r.domElement);
   sc=new THREE.Scene();sc.environment=S.environment;sc.add(new THREE.HemisphereLight(0xffffff,0x8a94a3,.6));const d=new THREE.DirectionalLight(0xffffff,.8);d.position.set(200,400,300);sc.add(d);
@@ -729,23 +729,25 @@ function frontOf(L){const B=new THREE.Box3();L.forEach(o=>B.expandByObject(o));c
  P.x=Math.min(408,Math.max(-362,P.x));P.z=Math.min(1330,Math.max(-482,P.z));return{P,c,n:best.n,sz}}
 function kindOf(m){const inf=(m.userData.info||"");if(!/class="tape"/.test(inf))return null;const code=(inf.match(/>([^<]+)</)||[])[1]||"";const kd=(typeof KD!=="undefined"&&KD[code])||{};let ch="";try{ch=card(inf).replace(/<li[\s\S]*$/,"")}catch(e){}const t=((kd.t||"")+" "+inf+" "+ch).toLowerCase();
  if(/ящик/.test(t))return"drawer";if(/шкаф|двер|полк/.test(t))return"door";return null}
-function closeThing(){const o=OPENED;OPENED=null;if(!o)return;const st=performance.now();
- (function an(){const u=Math.min(1,(performance.now()-st)/350);o.set(1-u);if(u<1)requestAnimationFrame(an);else o.done()})()}
-function openThing(m,n){closeThing();const kind=kindOf(m);if(!kind)return;const L=itemSet(m)||[m];const B=new THREE.Box3();L.forEach(o=>B.expandByObject(o));const sz=B.getSize(new THREE.Vector3()),c=B.getCenter(new THREE.Vector3());
- if(kind==="drawer"){const W=(Math.abs(n.x)?sz.z:sz.x)-3,H=Math.max(6,sz.y*.75),Dp=Math.min(48,Math.max(30,W*.8));
-  const tray=new THREE.Group();const mat=M(0xf2f3f5,{roughness:.7});const th=1.4;
-  const mk=(w,h,d,x,y,z)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);b.position.set(x,y,z);tray.add(b)};
-  mk(W,th,Dp,0,-H/2,0);mk(th,H,Dp,-W/2,0,0);mk(th,H,Dp,W/2,0,0);mk(W,H,th,0,0,-Dp/2);
-  if(Math.abs(n.x))tray.rotation.y=Math.PI/2;tray.position.copy(c).addScaledVector(n,-(Math.abs(n.x)?sz.x:sz.z)/2-Dp/2);tray.position.y=c.y-sz.y*.05;S.add(tray);
-  const p0=L.map(o=>o.position.clone()),t0=tray.position.clone(),out=Math.min(38,Dp*.8);
-  const set=u=>{const e=u*u*(3-2*u);L.forEach((o,i)=>o.position.copy(p0[i]).addScaledVector(n,out*e));tray.position.copy(t0).addScaledVector(n,out*e)};
-  OPENED={set,done:()=>{S.remove(tray);L.forEach((o,i)=>o.position.copy(p0[i]))}}}
- else{const side=new THREE.Vector3(-n.z,0,n.x);const hinge=c.clone().addScaledVector(side,-(Math.abs(n.x)?sz.z:sz.x)/2).addScaledVector(n,(Math.abs(n.x)?sz.x:sz.z)/2);hinge.y=0;
-  const g=new THREE.Group();g.position.copy(hinge);S.add(g);L.forEach(o=>g.attach(o));const sign=(side.x*n.z-side.z*n.x)>0?1:-1;
-  const set=u=>{const e=u*u*(3-2*u);g.rotation.y=-sign*e*1.35};OPENED={set,done:()=>{g.rotation.y=0;L.forEach(o=>S.attach(o));S.remove(g)}}}
- const st=performance.now();const o=OPENED;(function an(){if(OPENED!==o)return;const u=Math.min(1,(performance.now()-st)/450);o.set(u);if(u<1)requestAnimationFrame(an)})()}
-function approach(m){const L=itemSet(m)||[m];const f=frontOf(L);
- const go=()=>{const k=kindOf(m);if(k&&f)openThing(m,f.n);setTimeout(()=>openFor(m),k?380:0)};
+// drawers / cabinet doors: one state per thing, moved by maths (nothing is re-parented, nothing can fall off)
+const TH=new Map();
+function thingOf(m,n){const inf=m.userData.info;if(TH.has(inf))return TH.get(inf);const kind=kindOf(m);if(!kind)return null;
+ const L=itemSet(m)||[m];const B=new THREE.Box3();L.forEach(o=>B.expandByObject(o));const sz=B.getSize(new THREE.Vector3()),c=B.getCenter(new THREE.Vector3());
+ const T={kind,L,n:n.clone(),t:0,target:0,p0:L.map(o=>o.position.clone()),q0:L.map(o=>o.quaternion.clone())};
+ if(kind==="drawer"){const W=(Math.abs(n.x)?sz.z:sz.x)-3,H=Math.max(6,sz.y*.75),Dp=Math.min(48,Math.max(30,W*.8));const tray=new THREE.Group(),mat=M(0xf2f3f5,{roughness:.7}),th=1.4;
+  const mk=(w,h,d,x,y,z)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);b.position.set(x,y,z);tray.add(b)};mk(W,th,Dp,0,-H/2,0);mk(th,H,Dp,-W/2,0,0);mk(th,H,Dp,W/2,0,0);mk(W,H,th,0,0,-Dp/2);
+  if(Math.abs(n.x))tray.rotation.y=Math.PI/2;tray.position.copy(c).addScaledVector(n,-(Math.abs(n.x)?sz.x:sz.z)/2-Dp/2);tray.position.y=c.y-sz.y*.05;tray.visible=false;S.add(tray);T.tray=tray;T.t0=tray.position.clone();T.out=Math.min(38,Dp*.8)}
+ else{const side=new THREE.Vector3(-n.z,0,n.x);T.hinge=c.clone().addScaledVector(side,-(Math.abs(n.x)?sz.z:sz.x)/2).addScaledVector(n,(Math.abs(n.x)?sz.x:sz.z)/2);T.hinge.y=0;T.sign=(side.x*n.z-side.z*n.x)>0?1:-1}
+ TH.set(inf,T);return T}
+function applyThing(T){const e=T.t*T.t*(3-2*T.t);
+ if(T.kind==="drawer"){T.L.forEach((o,i)=>o.position.copy(T.p0[i]).addScaledVector(T.n,T.out*e));T.tray.visible=T.t>.01;T.tray.position.copy(T.t0).addScaledVector(T.n,T.out*e)}
+ else{const q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-T.sign*e*1.35);T.L.forEach((o,i)=>{o.position.copy(T.p0[i]).sub(T.hinge).applyQuaternion(q).add(T.hinge);o.quaternion.copy(q).multiply(T.q0[i])})}}
+let thLast=performance.now();(function thAnim(){const now=performance.now(),dt=Math.min(.25,(now-thLast)/1000);thLast=now;for(const T of TH.values()){if(T.t!==T.target){const st=dt/.4;T.t=T.target>T.t?Math.min(T.target,T.t+st):Math.max(T.target,T.t-st);applyThing(T)}}requestAnimationFrame(thAnim)})();
+function closeThing(){for(const T of TH.values())T.target=0}
+function approach(m){const inf=m.userData.info,T0=TH.get(inf);
+ if(T0&&T0.target===1){T0.target=0;if(!pop.hidden)closePop();return}   // second tap on an open drawer/door → close it
+ const L=itemSet(m)||[m];const f=frontOf(L);
+ const go=()=>{const k=kindOf(m);if(k&&f){closeThing();const T=thingOf(m,f.n);if(T)T.target=1}setTimeout(()=>openFor(m),k?300:0)};
  if(!f){const D=new THREE.Box3().setFromObject(m).getCenter(new THREE.Vector3()).sub(cam.position);moveTo(cam.position.clone(),D.normalize(),false,go);return}
  moveTo(f.P,f.c.clone().sub(f.P).normalize(),false,go)}
 {const _cp2=closePop;closePop=function(){closeThing();_cp2()}}
@@ -764,7 +766,7 @@ function approach(m){const L=itemSet(m)||[m];const f=frontOf(L);
   const P0=cam.position.clone(),hp=h.point.clone(),hd=Math.hypot(hp.x-P0.x,hp.z-P0.z);
   const tgtA=(hs.find(x=>x.distance<h.distance+6&&x.object.userData.info)||h).object;
   if(h.object.userData.door!=null)return;   // wardrobe doors: their own handler
-  if(!isFloor&&tgtA.userData.info){e.stopPropagation();if(!pop.hidden)closePop();approach(tgtA);return}
+  if(!isFloor&&tgtA.userData.info){e.stopPropagation();const T0=TH.get(tgtA.userData.info);if(T0&&T0.target===1){approach(tgtA);return}if(!pop.hidden)closePop();approach(tgtA);return}
   if(!isFloor&&hd<190)return;
   e.stopPropagation();
   // walk up to it: to the tapped floor spot, or ~1.1 m in front of the tapped thing, facing it
