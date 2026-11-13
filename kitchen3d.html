@@ -284,7 +284,7 @@ const sky=(()=>{const c=document.createElement("canvas");c.width=1024;c.height=2
     if(Math.random()<.25){x.beginPath();x.moveTo(px+w/2,top-30);x.lineTo(px+w/2-3,top);x.lineTo(px+w/2+3,top);x.fill()}
     for(let wy=top;wy<252;wy+=7)for(let wx=px+2;wx<px+w-3;wx+=5)if(Math.random()<.8){x.fillStyle="#f2f2f2";x.fillRect(wx,wy,3.4,5)}
     px+=w+3}return new THREE.CanvasTexture(c)})();
-const HX=DR0+42,HZ=MID-4,HY=157,HR=45,HH=45;
+const HX=DR0+42,HZ=MID-4,HY=172,HR=30,HH=36;
 for(const t0 of[0.15,Math.PI+0.15]){const g=new THREE.Mesh(new THREE.CylinderGeometry(HR,HR,HH,48,1,true,t0,Math.PI-0.3),new THREE.MeshStandardMaterial({map:sky,side:THREE.DoubleSide,roughness:.1,metalness:.2}));g.position.set(HX,HY+HH/2,HZ);g.userData.info="Вытяжка Falmec Mirabilia — стеклянные панели с принтом небоскрёбов Нью-Йорка";S.add(g);picks.push(g)}
 box(HX-14,HY+2,HZ-14,28,HH-2,28,STEEL);box(HX-13,HY+HH,HZ-13,26,260-HY-HH,26,STEEL);
 // room side (+z): cooler, Dreame, wine — pictures on the front
@@ -330,7 +330,7 @@ stool(25,IZ0-22);stool(85,IZ0-22);
  box(TVX-1,221,CZ0-1.2,2,2,1,M(0xc9ced4,{metalness:1}),null,false);
  // --- south face with the WC door ---
  box(CX0,0,CZ1-10,DX0-CX0,260,10,CW);box(DX1,0,CZ1-10,CX1-DX1,260,10,CW);box(DX0,210,CZ1-10,DX1-DX0,50,10,CW);
- box(DX0+1,0,CZ1-8,DX1-DX0-2,209,4,new THREE.MeshPhysicalMaterial({color:0x131315,roughness:.35,clearcoat:.5}),"Санузел в центре дома");
+ box(DX0+1,0,CZ1-8,DX1-DX0-2,209,4,new THREE.MeshPhysicalMaterial({color:0x030304,roughness:.4,clearcoat:.35}),"Санузел в центре дома");
  box(DX1-14,98,CZ1-2.5,10,2,2,M(0xc9ced4,{metalness:1,roughness:.25}),null,false);
  // --- east: 4-door sliding wardrobe: hollow carcass with real insides, doors slide open on tap ---
  // doors: top + middle panels are mirror glass, bottom panel white (not glass)
@@ -405,7 +405,7 @@ box(MBX1,0,MBZ0-6,6,260,(-116)-(MBZ0-6),MBE);box(MBX1,0,-16,6,260,8,MBE);box(MBX
  oak.wrapS=oak.wrapT=THREE.RepeatWrapping;oak.repeat.set((MBX1-MBX0)/180,(MBZ1-MBZ0)/180);
  const f=new THREE.Mesh(new THREE.PlaneGeometry(MBX1-MBX0,MBZ1-MBZ0),new THREE.MeshStandardMaterial({map:oak,roughness:.55}));f.rotation.x=-Math.PI/2;f.position.set((MBX0+MBX1)/2,.3,(MBZ0+MBZ1)/2);f.receiveShadow=true;f.userData.info='<span class="tape">МБ</span> · Мастер-бедрум';S.add(f);picks.push(f);
  // black double entrance door
- const BD=new THREE.MeshPhysicalMaterial({color:0x131315,roughness:.35,clearcoat:.5});box(-181,0,-7,85,209,3,BD,'<span class="tape">МБ</span> · Мастер-бедрум');
+ const BD=new THREE.MeshPhysicalMaterial({color:0x030304,roughness:.4,clearcoat:.35});box(-181,0,-7,85,209,3,BD,'<span class="tape">МБ</span> · Мастер-бедрум');
  box(-110,98,-12,12,2,2,M(0xc9ced4,{metalness:1}),null,false);box(-110,98,-2,12,2,2,M(0xc9ced4,{metalness:1}),null,false);box(-100,96,-12,3,6,12,M(0xc9ced4,{metalness:1}),null,false);
  // windows: white frames, white blinds, black roller-blind cassettes on top
  const FRW=M(0xf6f6f4,{roughness:.4}),CAS=M(0x111214,{roughness:.6}),bl=canvasTex(256,256,(c,W,H)=>{c.fillStyle="#e2e5e8";c.fillRect(0,0,W,H);for(let y=0;y<H;y+=7){c.fillStyle="#f4f6f8";c.fillRect(0,y,W,4);c.fillStyle="rgba(0,0,0,.08)";c.fillRect(0,y+4,W,1)}});
@@ -644,7 +644,7 @@ let CURI=START;{const _sr=showRoom;showRoom=function(i){CURI=i;_sr(i)}}
  if(o.material&&o.material.color&&o.material.color.getHex()===0xeef1f5)return;   // plain walls
  let inf=null;
  // a handle, label or panel that sits on a labelled thing (drawer front, appliance) belongs to it
- {const E=b.clone();let best=null,bv=1e12;for(const q of LAB){const qb=q[1];if(qb.clone().expandByScalar(3).containsBox(E)||(qb.clone().expandByScalar(3).intersectsBox(E)&&Math.max(s.x,s.y,s.z)<60)){const v=qb.getSize(new THREE.Vector3());const vol=v.x*v.y*v.z;if(vol<bv){bv=vol;best=q[0]}}}if(best){o.userData.info=best;picks.push(o);return}}
+ {const E=b.clone();let best=null,bv=1e12;for(const q of LAB){const qb=q[1];const qs=qb.getSize(new THREE.Vector3());if(qb.clone().expandByScalar(6).containsBox(E)&&s.x*s.y*s.z<qs.x*qs.y*qs.z){const v=qb.getSize(new THREE.Vector3());const vol=v.x*v.y*v.z;if(vol<bv){bv=vol;best=q[0]}}}if(best){o.userData.info=best;picks.push(o);return}}
  if(c.x>-6&&c.x<417&&c.z>-2&&c.z<63&&b.max.y<241)inf="Кухонный шкаф";
  else if(c.x>-8&&c.x<211&&c.z>183&&c.z<291&&b.max.y<95)inf=ISL;
  else if(c.x<-360||c.x>404)inf="Окно";
@@ -664,12 +664,16 @@ const PR=(()=>{let r=null,sc=null,cm=null,oc=null,run=false,wrap=null;
   oc.target.copy(ctr);cm.position.copy(ctr).addScaledVector(dir,D);cm.near=Math.max(.5,D/50);cm.far=D*10;cm.updateProjectionMatrix();oc.minDistance=D*.4;oc.maxDistance=D*2.5;run=true;return wrap}
  function stop(){run=false}
  return{show,stop}})();
-function itemSet(m){const inf=m.userData.info;let L=[];S.traverse(o=>{if(o.isMesh&&o.userData.info===inf&&o.visible){let q=o,ok=true;while(q){if(!q.visible){ok=false;break}q=q.parent}if(ok)L.push(o)}});
- // things with the same name far apart (e.g. same label elsewhere) → keep only the parts near the tapped one
- const c0=new THREE.Box3().setFromObject(m).getCenter(new THREE.Vector3());L=L.filter(o=>new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()).distanceTo(c0)<260);
- const B=new THREE.Box3();L.forEach(o=>B.expandByObject(o));const bs=B.getSize(new THREE.Vector3());if(Math.max(bs.x,bs.z)>420)return null;   // floors, rooms: no picture
- const E=B.clone().expandByScalar(2.5);S.traverse(o=>{if(o.isMesh&&!L.includes(o)&&o.visible&&!o.userData.info&&o.material&&!(o.material.transparent&&o.material.opacity<.35)){const bb=new THREE.Box3().setFromObject(o);if(E.containsBox(bb))L.push(o)}});return L}
-{const _oc=openCard;openCard=function(h){_oc(h);if(PV){const w=PR.show(PV.meshes,PV.dir);pbody.insertBefore(w,pbody.firstChild);sheet.classList.add("withpv")}else{sheet.classList.remove("withpv");PR.stop()}}}
+function itemSet(m){const inf=m.userData.info;const vis=o=>{let q=o;while(q){if(!q.visible)return false;q=q.parent}return true};
+ const same=[];S.traverse(o=>{if(o.isMesh&&o.userData.info===inf&&vis(o))same.push([o,new THREE.Box3().setFromObject(o)])});
+ // only the parts that touch each other (one chair, not all six)
+ const L=[m],B=new THREE.Box3().setFromObject(m);let grew=true;while(grew){grew=false;for(const [o,bb] of same){if(L.includes(o))continue;if(B.clone().expandByScalar(8).intersectsBox(bb)){L.push(o);B.union(bb);grew=true}}}
+ const bs=B.getSize(new THREE.Vector3());if(Math.max(bs.x,bs.z)>420)return null;
+ const E=B.clone().expandByScalar(3);S.traverse(o=>{if(!o.isMesh||L.includes(o)||!vis(o)||o.userData.info||!o.material||(o.material.transparent&&o.material.opacity<.35))return;const bb=new THREE.Box3().setFromObject(o),os=bb.getSize(new THREE.Vector3());
+  if(E.intersectsBox(bb)&&os.x<=bs.x+6&&os.z<=bs.z+6&&os.y<=Math.max(bs.y+6,120)&&bb.min.y>=B.min.y-90&&bb.max.y<=B.max.y+6)L.push(o)});return L}
+const NOPIC=/^(Окно|Дверь|Кухонный шкаф|Открытая полка|Санузел в центре|Санузел мастер|Спальни|Сауна|Мастер-бедрум|Гардеробная)/;
+function picOK(){if(!PV||!sel)return false;const inf=sel.userData.info||"";if(/class="tape"/.test(inf))return false;if(NOPIC.test(inf.replace(/<[^>]+>/g,"").trim()))return false;return PV.meshes.length>=3||PV.meshes.some(m=>m.material&&m.material.map)}
+{const _oc=openCard;openCard=function(h){_oc(h);if(picOK()){const w=PR.show(PV.meshes,PV.dir);pbody.insertBefore(w,pbody.firstChild);sheet.classList.add("withpv")}else{sheet.classList.remove("withpv");PR.stop()}}}
 {const _cp=closePop;closePop=function(){PV=null;PR.stop();sheet.classList.remove("withpv");_cp()}}
 // ===== hinged doors: tap → the door swings open and you walk into the room =====
 const SWING=[];
