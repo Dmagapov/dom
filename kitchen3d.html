@@ -25,7 +25,7 @@ h1{font-size:1.5rem;margin:4px 0 2px}
 .pop[hidden]{display:none}
 .sheet{background:var(--card);color:var(--ink);width:min(560px,100%);max-height:86vh;border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;animation:u .22s ease-out}
 .sheet.wide{width:min(900px,100%);height:86vh}
-.sheet.withpv{height:82vh}.sheet.withpv #pbody{display:flex;flex-direction:column;padding:0;flex:1;min-height:0}.pv{flex:0 0 48%;min-height:0;background:radial-gradient(circle at 50% 40%,#ffffff,#e9edf2 70%);touch-action:none}.pv canvas{display:block}.sheet.withpv #pbody>:not(.pv){padding:0 16px}.sheet.withpv #pbody>.ct{padding-top:12px}.sheet.withpv #pbody{overflow:auto}.sheet.withpv #pbody>.mbtn{align-self:flex-start;margin:10px 16px}
+.sheet.withpv{height:82vh}.sheet.withpv #pbody{display:flex;flex-direction:column;padding:0;flex:1;min-height:0}.pv{flex:0 0 48%;min-height:0;background:radial-gradient(circle at 50% 40%,#ffffff,#e9edf2 70%)}.pv canvas{display:block}.sheet.withpv #pbody>:not(.pv){padding:0 16px}.sheet.withpv #pbody>.ct{padding-top:12px}.sheet.withpv #pbody{overflow:auto}.sheet.withpv #pbody>.mbtn{align-self:flex-start;margin:10px 16px}
 .ph{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
 .ph .x{margin-left:auto;border:0;background:none;color:var(--muted);font-size:1.6rem;line-height:1;cursor:pointer;padding:4px 8px}
 #pbody{padding:14px 16px 18px;overflow:auto}
@@ -647,13 +647,13 @@ let CURI=START;{const _sr=showRoom;showRoom=function(i){CURI=i;_sr(i)}}
  else if(c.x>-8&&c.x<211&&c.z>183&&c.z<291&&b.max.y<95)inf=ISL;
  else if(c.x<-360||c.x>404)inf="Окно";
  if(inf){o.userData.info=inf;picks.push(o)}})}
-// ===== card: the tapped thing is shown by itself in the top half (turn it with a finger), the description below =====
+// ===== card: the tapped thing is shown by itself in the top half (still picture), the description below =====
 let PV=null;
 function openFor(m){if(sel){sel.material=sel.userData.m0}sel=m;sel.userData.m0=sel.material;sel.material=sel.material.clone();if(sel.material.emissive)sel.material.emissive.setHex(0x0a2a6a);const L=itemSet(sel);PV=L&&L.length?{meshes:L,dir:ctl.target.clone().sub(cam.position)}:null;openCard(card(sel.userData.info))}
 const PR=(()=>{let r=null,sc=null,cm=null,oc=null,run=false,wrap=null;
  function init(){wrap=document.createElement("div");wrap.className="pv";r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setPixelRatio(Math.min(devicePixelRatio,1.75));r.outputEncoding=THREE.sRGBEncoding;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=.9;wrap.appendChild(r.domElement);
   sc=new THREE.Scene();sc.environment=S.environment;sc.add(new THREE.HemisphereLight(0xffffff,0x8a94a3,.6));const d=new THREE.DirectionalLight(0xffffff,.8);d.position.set(200,400,300);sc.add(d);
-  cm=new THREE.PerspectiveCamera(35,1,1,5000);oc=new THREE.OrbitControls(cm,r.domElement);oc.enableDamping=true;oc.enablePan=false;oc.autoRotate=true;oc.autoRotateSpeed=1.6;
+  cm=new THREE.PerspectiveCamera(35,1,1,5000);oc=new THREE.OrbitControls(cm,r.domElement);oc.enableDamping=false;oc.enablePan=false;oc.autoRotate=false;oc.enabled=false;
   (function loop(){if(run&&wrap.isConnected){const w=wrap.clientWidth,h=wrap.clientHeight;if(w&&h&&(r.domElement.width!==Math.round(w*r.getPixelRatio())||r.domElement.height!==Math.round(h*r.getPixelRatio()))){r.setSize(w,h,false);r.domElement.style.width=w+"px";r.domElement.style.height=h+"px";cm.aspect=w/h;cm.updateProjectionMatrix()}oc.update();r.render(sc,cm)}requestAnimationFrame(loop)})()}
  function show(meshes,fromDir){if(!r)init();while(sc.children.length>2)sc.remove(sc.children[2]);const g=new THREE.Group();
   for(const m of meshes){const mat=m===sel&&m.userData.m0?m.userData.m0:m.material;const c=new THREE.Mesh(m.geometry,mat);m.updateWorldMatrix(true,false);c.applyMatrix4(m.matrixWorld);g.add(c);m.children.forEach(ch=>{if(ch.isLineSegments){const l=ch.clone();l.applyMatrix4(m.matrixWorld);g.add(l)}})}
