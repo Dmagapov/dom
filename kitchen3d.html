@@ -586,7 +586,7 @@ R.domElement.addEventListener("pointerdown",e=>{down=[e.clientX,e.clientY]});
 R.domElement.addEventListener("pointerup",e=>{if(down&&Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;const r=R.domElement.getBoundingClientRect();v.x=((e.clientX-r.left)/r.width)*2-1;v.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(v,cam);const hs=ray.intersectObjects(S.children,true).filter(x=>{const o0=x.object;if(!o0.isMesh||!o0.material||o0.material.visible===false||(o0.material.transparent&&o0.material.opacity<.35))return false;let o=o0;while(o){if(!o.visible)return false;o=o.parent}return true});let h=hs[0];if(h&&!h.object.userData.info&&h.object.userData.door==null){const n=hs.find(x=>x.distance<h.distance+4&&(x.object.userData.info||x.object.userData.door!=null));h=n||null}if(h&&h.object.userData.door!=null)return;if(!h){if(sel){sel.material=sel.userData.m0;sel=null}return}
   if(sel){sel.material=sel.userData.m0}sel=h.object;sel.userData.m0=sel.material;sel.material=sel.material.clone();if(sel.material.emissive)sel.material.emissive.setHex(0x0a2a6a);{const L=itemSet(sel);PV=L&&L.length?{meshes:L,dir:ctl.target.clone().sub(cam.position)}:null}openCard(card(sel.userData.info))});
 // narrow (portrait) screens get a wider lens instead of pulling the camera back through walls
-const FOV=()=>{cam.aspect=el.clientWidth/el.clientHeight;const B=typeof WBASE==="number"?WBASE:45;cam.fov=Math.min(B+(B>45?20:33),Math.max(B,2*Math.atan(Math.tan(B/2*Math.PI/180)*1.25/cam.aspect)*180/Math.PI));cam.updateProjectionMatrix()};FOV();
+const FOV=()=>{cam.aspect=el.clientWidth/el.clientHeight;const B=typeof WBASE==="number"?WBASE:45;cam.fov=Math.min(B+(B>45?35:33),Math.max(B,2*Math.atan(Math.tan(B/2*Math.PI/180)*1.25/cam.aspect)*180/Math.PI));cam.updateProjectionMatrix()};FOV();
 addEventListener("resize",()=>{R.setSize(el.clientWidth,el.clientHeight);FOV()});
 
 // ===== navigation by rooms: row 1 = rooms (only that room is drawn), row 2 = handy viewpoints + the room's drawer codes =====
@@ -648,6 +648,8 @@ let CURI=START;{const _sr=showRoom;showRoom=function(i){CURI=i;_sr(i)}}
  else if(c.x>-8&&c.x<211&&c.z>183&&c.z<291&&b.max.y<95)inf=ISL;
  else if(c.x<-360||c.x>404)inf="Окно";
  if(inf){o.userData.info=inf;picks.push(o)}})}
+// fronts that the shape alone cannot tell
+S.traverse(o=>{const i=(o.userData.info||"");if(/^Камин|Полка у камина/.test(i))o.userData.front=[0,0,-1];if(/^Угловой диван/.test(i))o.userData.front=[1,0,0]});
 // ===== card: the tapped thing is shown by itself in the top half (still picture), the description below =====
 let PV=null;
 function openFor(m){if(sel){sel.material=sel.userData.m0}sel=m;sel.userData.m0=sel.material;const L=itemSet(sel);PV=L&&L.length?{meshes:L,dir:ctl.target.clone().sub(cam.position)}:null;openCard(card(sel.userData.info))}
@@ -698,17 +700,47 @@ const barEl=document.querySelector(".bar"),barTxt=barEl?barEl.textContent:"";
 const codesEl=document.getElementById("codes");
 function setLook(pos,dirV){ctl.target.copy(pos).addScaledVector(dirV,10);cam.position.copy(pos);ctl.update()}
 let wtw=null;
+// ---- walking around things: a simple floor grid (30 cm) and A* — you go round the column, the island, through open doors ----
+function navBoxes(){const a=[];const vis=o=>{let q=o;while(q){if(!q.visible)return false;q=q.parent}return true};
+ S.traverse(o=>{if(!o.isMesh||o===floor||o.userData.ceiling||o.userData.plotPart||o.userData.ext||!o.material||o.material.visible===false||!vis(o))return;if(o.material.transparent&&o.material.opacity<.2)return;
+  const bb=new THREE.Box3().setFromObject(o);if(bb.min.y>150||bb.max.y<15)return;if(Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z)>1200)return;a.push(bb)});return a}
+function freeXZ(x,z,bx,m){if(x<-364||x>410||z<-484||z>1332)return false;for(const bb of bx)if(x>bb.min.x-m&&x<bb.max.x+m&&z>bb.min.z-m&&z<bb.max.z+m)return false;return true}
+function lineFree(a,b,bx,m){const d=Math.hypot(b.x-a.x,b.z-a.z),n=Math.max(1,Math.ceil(d/10));for(let i=1;i<n;i++){const t=i/n;if(!freeXZ(a.x+(b.x-a.x)*t,a.z+(b.z-a.z)*t,bx,m))return false}return true}
+function findPath(A,B){const bx=navBoxes(),m=22;if(lineFree(A,B,bx,m))return[B];
+ const st=30,X0=-364,Z0=-484,NX=Math.ceil((410-X0)/st)+1,NZ=Math.ceil((1332-Z0)/st)+1;const id=(i,k)=>k*NX+i,px=i=>X0+i*st,pz=k=>Z0+k*st;
+ const free=new Uint8Array(NX*NZ);for(let k=0;k<NZ;k++)for(let i=0;i<NX;i++)free[id(i,k)]=freeXZ(px(i),pz(k),bx,m)?1:0;
+ const near=(P)=>{let best=-1,bd=1e9;for(let k=0;k<NZ;k++)for(let i=0;i<NX;i++){if(!free[id(i,k)])continue;const d=Math.hypot(px(i)-P.x,pz(k)-P.z);if(d<bd&&(d<60||lineFree(P,{x:px(i),z:pz(k)},bx,4))){bd=d;best=id(i,k)}}return best};
+ const s0=near(A),g0=near(B);if(s0<0||g0<0)return[B];
+ const g=new Float32Array(NX*NZ).fill(1e9),came=new Int32Array(NX*NZ).fill(-1),open=[s0];g[s0]=0;const done=new Uint8Array(NX*NZ);
+ const h=c=>Math.hypot(px(c%NX)-px(g0%NX),pz((c/NX|0))-pz((g0/NX|0)));
+ while(open.length){let bi=0;for(let j=1;j<open.length;j++)if(g[open[j]]+h(open[j])<g[open[bi]]+h(open[bi]))bi=j;const c=open.splice(bi,1)[0];if(c===g0)break;if(done[c])continue;done[c]=1;const ci=c%NX,ck=c/NX|0;
+  for(const [di,dk] of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const ni=ci+di,nk=ck+dk;if(ni<0||nk<0||ni>=NX||nk>=NZ)continue;const nc=id(ni,nk);if(!free[nc]||done[nc])continue;if(di&&dk&&(!free[id(ci+di,ck)]||!free[id(ci,ck+dk)]))continue;
+   const ng=g[c]+(di&&dk?1.414:1)*st;if(ng<g[nc]){g[nc]=ng;came[nc]=c;open.push(nc)}}}
+ if(came[g0]<0&&g0!==s0)return[B];
+ let pts=[];for(let c=g0;c!==-1;c=came[c])pts.unshift({x:px(c%NX),z:pz(c/NX|0)});pts.push({x:B.x,z:B.z});
+ // straighten: keep a corner only when the straight line would hit something
+ const out=[];let cur={x:A.x,z:A.z},j=0;while(j<pts.length){let k=pts.length-1;while(k>j&&!lineFree(cur,pts[k],bx,m-6))k--;out.push(pts[k]);cur=pts[k];j=k+1}
+ return out.map(p=>new THREE.Vector3(p.x,0,p.z))}
 function moveTo(P1,D1,instant,cb){fl=null;if(ZOOMED){ZOOMED=false;FOV()}if(instant){setLook(P1,D1);if(cb)cb();return}
- const P0=cam.position.clone(),D0=ctl.target.clone().sub(cam.position).normalize(),st=performance.now(),dur=Math.min(2200,700+P0.distanceTo(P1)*3.2);
- wtw=()=>{const u=Math.min(1,(performance.now()-st)/dur),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;setLook(P0.clone().lerp(P1,e),D0.clone().lerp(D1,e).normalize());if(u>=1){wtw=null;if(cb)cb()}}}
+ const P0=cam.position.clone(),D0=ctl.target.clone().sub(cam.position).normalize();
+ let way=[P1];if(WALK&&Math.hypot(P1.x-P0.x,P1.z-P0.z)>60){closeThing();if(typeof DOORS!=='undefined')DOORS.forEach(d=>d.open=0)}if(WALK&&Math.hypot(P1.x-P0.x,P1.z-P0.z)>40){way=findPath(P0,P1).map(v=>{const q=v.clone();q.y=P1.y;return q});way[way.length-1]=P1.clone()}
+ const pts=[P0,...way];const seg=[];let L=0;for(let i=1;i<pts.length;i++){const d=pts[i].distanceTo(pts[i-1]);seg.push(d);L+=d}
+ const st=performance.now(),dur=Math.min(4500,700+L*3.2);
+ wtw=()=>{const u=Math.min(1,(performance.now()-st)/dur),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;let s=e*L,i=0;while(i<seg.length-1&&s>seg[i]){s-=seg[i];i++}
+  const P=pts[i].clone().lerp(pts[i+1],seg[i]?Math.min(1,s/seg[i]):1);
+  // look where you walk; turn to the thing at the end
+  let D;if(pts.length>2&&u<.8){const w=pts[i+1].clone().sub(pts[i]).setY(0);if(w.lengthSq()>1)w.normalize();D=w.lengthSq()>.5?w.setY(-.08).normalize():D0;const k=Math.min(1,u/.15);D=D0.clone().lerp(D,k).normalize()}
+  else{const k=pts.length>2?Math.min(1,(u-.8)/.2):e;const from=pts.length>2?pts[pts.length-1].clone().sub(pts[pts.length-2]).setY(-.08).normalize():D0;D=from.lerp(D1,k).normalize()}
+  setLook(P,D);if(u>=1){wtw=null;if(cb)cb()}}}
 (function wl(){if(wtw)wtw();requestAnimationFrame(wl)})();
-function showInterior(){for(const [o,b] of ALL)o.visible=!o.userData.hide&&!o.userData.ext&&!(o.material&&o.material.transparent&&o.material.opacity<.6&&Math.max(b.max.x-b.min.x,b.max.z-b.min.z)>250);S.children.forEach(o=>{if(o.userData.outline)o.visible=false})}
+const CEIL=(()=>{const g=new THREE.Group();const mat=new THREE.MeshStandardMaterial({color:0xf7f7f5,roughness:.95,side:THREE.DoubleSide});for(const [x0,x1,z0,z1] of[[-372,424,-490,1340],[-940,-366,722,1259]]){const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0,z1-z0),mat);m.rotation.x=Math.PI/2;m.position.set((x0+x1)/2,260,(z0+z1)/2);m.userData.ceiling=1;g.add(m)}g.visible=false;g.userData.ceiling=1;S.add(g);return g})();
+function showInterior(){CEIL.visible=true;for(const [o,b] of ALL)o.visible=!o.userData.hide&&!o.userData.ext&&!(o.material&&o.material.transparent&&o.material.opacity<.6&&Math.max(b.max.x-b.min.x,b.max.z-b.min.z)>250);S.children.forEach(o=>{if(o.userData.outline)o.visible=false})}
 function enterWalk(name){if(!ORB)ORB={minD:ctl.minDistance,maxD:ctl.maxDistance,z:ctl.enableZoom,pan:ctl.enablePan,rs:ctl.rotateSpeed,maxPA:ctl.maxPolarAngle,minPA:ctl.minPolarAngle};
  WALK=name;ctl.minDistance=ctl.maxDistance=10;ctl.enableZoom=false;ctl.enablePan=false;ctl.rotateSpeed=-.6;ctl.maxPolarAngle=Math.PI*.9;ctl.minPolarAngle=Math.PI*.1;
  WBASE=55;FOV();showInterior();
  const [p,l]=WNEXT||WSTART[name];WNEXT=null;const P1=new THREE.Vector3(p[0],EYE,p[1]),D1=new THREE.Vector3(...l).sub(P1).normalize();moveTo(P1,D1,cam.position.distanceTo(P1)>600);
  if(codesEl)codesEl.style.display="none";if(barEl)barEl.textContent=TT("Нажмите на что угодно — подойдёте к этому. Ещё раз — откроется. Тяните пальцем — осмотреться.")}
-function exitWalk(){if(!WALK)return;WALK=null;wtw=null;if(ORB){ctl.minDistance=ORB.minD;ctl.maxDistance=ORB.maxD;ctl.enableZoom=ORB.z;ctl.enablePan=ORB.pan;ctl.rotateSpeed=ORB.rs;ctl.maxPolarAngle=ORB.maxPA;ctl.minPolarAngle=ORB.minPA;ORB=null}
+function exitWalk(){if(!WALK)return;WALK=null;CEIL.visible=false;wtw=null;if(ORB){ctl.minDistance=ORB.minD;ctl.maxDistance=ORB.maxD;ctl.enableZoom=ORB.z;ctl.enablePan=ORB.pan;ctl.rotateSpeed=ORB.rs;ctl.maxPolarAngle=ORB.maxPA;ctl.minPolarAngle=ORB.minPA;ORB=null}
  WBASE=45;FOV();if(codesEl)codesEl.style.display="";if(barEl)barEl.textContent=barTxt}
 {const _sw=showRoom;showRoom=function(i){const nm=ROOMS[i][0];if(!WSTART[nm]){exitWalk();_sw(i);return}SWALLOW=true;try{_sw(i)}finally{SWALLOW=false}enterWalk(nm)}}
 // while walking, «fly to» (a door opening, a double tap) just turns you towards that point
@@ -721,27 +753,34 @@ function frontOf(L){const B=new THREE.Box3();L.forEach(o=>B.expandByObject(o));c
  const obs=[],boxes=[];S.traverse(o=>{if(o.isMesh&&!L.includes(o)&&o!==floor&&o.material&&o.material.visible!==false&&!(o.material.transparent&&o.material.opacity<.35)&&!o.userData.plotPart&&!o.userData.ext&&vis(o)){obs.push(o);const bb=new THREE.Box3().setFromObject(o);if(bb.min.y<150&&bb.max.y>20&&Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z)<1200)boxes.push(bb)}});
  const rc=new THREE.Raycaster();const P0=cam.position.clone();
  const vf=cam.fov*Math.PI/180,hf=2*Math.atan(Math.tan(vf/2)*cam.aspect);
- const freeAt=(x,z)=>{if(x<-364||x>410||z<-484||z>1332)return false;for(const bb of boxes)if(x>bb.min.x-22&&x<bb.max.x+22&&z>bb.min.z-22&&z<bb.max.z+22)return false;return true};
+ // 1 = free floor, 2 = above a low thing (sofa seat, chair) — allowed, as if sitting, 0 = no
+ const freeAt=(x,z)=>{if(x<-364||x>410||z<-484||z>1332)return 0;let r=1;for(const bb of boxes)if(x>bb.min.x-22&&x<bb.max.x+22&&z>bb.min.z-22&&z<bb.max.z+22){if(bb.max.y<=80&&x>bb.min.x+5&&x<bb.max.x-5&&z>bb.min.z+5&&z<bb.max.z-5||bb.max.y<=80&&r===2)r=2;else if(bb.max.y<=80)r=r===1?2:r;else return 0}return r};
  let best=null,bs=-1e9;
- for(const n of[new THREE.Vector3(1,0,0),new THREE.Vector3(-1,0,0),new THREE.Vector3(0,0,1),new THREE.Vector3(0,0,-1)]){
+ // which side is the front: the one with the handles, displays, labels on it (small parts lying on that face)
+ const NS=[new THREE.Vector3(1,0,0),new THREE.Vector3(-1,0,0),new THREE.Vector3(0,0,1),new THREE.Vector3(0,0,-1)];
+ const det=NS.map(n=>{let k=0;for(const o of L){const bb=new THREE.Box3().setFromObject(o),os=bb.getSize(new THREE.Vector3());const fw=Math.abs(n.x)?sz.z:sz.x;if((Math.abs(n.x)?os.x:os.z)>8)continue;if(Math.max(Math.abs(n.x)?os.z:os.x,os.y)>fw*.85&&L.length>1)continue;
+   const fp=n.x>0?B.max.x:n.x<0?B.min.x:n.z>0?B.max.z:B.min.z,lo=Math.abs(n.x)?bb.min.x:bb.min.z,hi=Math.abs(n.x)?bb.max.x:bb.max.z;if((n.x+n.z>0?hi:-lo)>=(n.x+n.z>0?fp:-fp)-6)k++}return k});
+ const uf=L.find(o=>o.userData.front);let FRONT=uf?[new THREE.Vector3(...uf.userData.front)]:L.some(o=>o.userData.door!=null)?[NS[0]]:sz.x<sz.z*.3?[NS[0],NS[1]]:sz.z<sz.x*.3?[NS[2],NS[3]]:null;
+ if(!FRONT){const mx=Math.max(...det);if(mx>0&&det.filter(d=>d===mx).length<4)FRONT=NS.filter((n,i)=>det[i]===mx)}
+ for(const pass of[FRONT||NS,NS]){if(best)break;for(const n of pass){
   const half=Math.abs(n.x)?sz.x/2:sz.z/2,w=Math.abs(n.x)?sz.z:sz.x,h=sz.y;
   const ideal=Math.max((w/2)/Math.tan(hf/2),(h/2)/Math.tan(vf/2))*1.2;
   const y=Math.min(EYE,Math.max(105,c.y+45));
   // the face must be open (nothing glued to it) …
   const face=c.clone().addScaledVector(n,half+1);face.y=Math.min(Math.max(c.y,15),B.max.y-2);rc.set(face,n);rc.far=30;if(rc.intersectObjects(obs,false).length)continue;
   // … then the nearest spot to the ideal distance where you can stand and see it
-  let pick=null,pd=1e9;for(let D=45;D<=420;D+=10){const P=c.clone().addScaledVector(n,half+D);P.y=y;if(!freeAt(P.x,P.z))continue;
+  let pick=null,pd=1e9;for(let D=45;D<=420;D+=10){const P=c.clone().addScaledVector(n,half+D);P.y=y;const fa=freeAt(P.x,P.z);if(!fa)continue;if(fa===2)P.y=Math.min(y,125);
    const f0=c.clone().addScaledVector(n,half+1.5);const v=P.clone().sub(f0),dl=v.length();rc.set(f0,v.normalize());rc.far=dl;if(rc.intersectObjects(obs,false).length)continue;
-   const dd=D<ideal?(ideal-D)*1.8:(D-ideal)*1.1;if(dd<pd){pd=dd;pick={P,D}}}
-  if(!pick)continue;const sc=n.dot(P0.clone().sub(c).setY(0).normalize())*60-pd*.5;if(sc>bs){bs=sc;best={n,P:pick.P}}}
- if(!best)return null;return{P:best.P,c,n:best.n,sz}}
-function kindOf(m){if(/>К22</.test(m.userData.info||""))return"cargo";const inf=(m.userData.info||"");if(!/class="tape"/.test(inf))return null;const code=(inf.match(/>([^<]+)</)||[])[1]||"";const kd=(typeof KD!=="undefined"&&KD[code])||{};let ch="";try{ch=card(inf).replace(/<li[\s\S]*$/,"")}catch(e){}const t=((kd.t||"")+" "+inf+" "+ch).toLowerCase();
+   const dd=(D<ideal?(ideal-D)*3:(D-ideal)*1.1)+(fa===2?60:0);if(dd<pd){pd=dd;pick={P,D}}}
+  if(!pick)continue;const toMid=new THREE.Vector3(30-c.x,0,(c.z<-10?-250:450)-c.z).normalize();const sc=n.dot(toMid)*50+n.dot(P0.clone().sub(c).setY(0).normalize())*25-pd*.5;if(sc>bs){bs=sc;best={n,P:pick.P}}}
+} if(!best)return null;return{P:best.P,c,n:best.n,sz}}
+function kindOf(m){if(m.userData.door!=null)return null;if(/>Ш\d</.test(m.userData.info||""))return null;if(/>К22</.test(m.userData.info||""))return"cargo";const inf=(m.userData.info||"");if(!/class="tape"/.test(inf))return null;const code=(inf.match(/>([^<]+)</)||[])[1]||"";const kd=(typeof KD!=="undefined"&&KD[code])||{};let ch="";try{ch=card(inf).replace(/<li[\s\S]*$/,"")}catch(e){}const t=((kd.t||"")+" "+inf+" "+ch).toLowerCase();
  if(/ящик/.test(t))return"drawer";if(/шкаф|двер|полк/.test(t))return"door";return null}
 // drawers / cabinet doors: one state per thing, moved by maths (nothing is re-parented, nothing can fall off)
 const TH=new Map();
 function thingOf(m,n){const inf=m.userData.info;if(TH.has(inf))return TH.get(inf);const kind=kindOf(m);if(!kind)return null;
  const L=itemSet(m)||[m];const B=new THREE.Box3();L.forEach(o=>B.expandByObject(o));const sz=B.getSize(new THREE.Vector3()),c=B.getCenter(new THREE.Vector3());
- const T={kind,L,n:n.clone(),t:0,target:0,p0:L.map(o=>o.position.clone()),q0:L.map(o=>o.quaternion.clone())};
+ L.forEach(o=>{if(!o.userData.p0){o.userData.p0=o.position.clone();o.userData.q0=o.quaternion.clone()}});const T={kind,L,n:n.clone(),t:0,target:0,p0:L.map(o=>o.userData.p0),q0:L.map(o=>o.userData.q0)};
  if(kind==="drawer"){const W=(Math.abs(n.x)?sz.z:sz.x)-3,H=Math.max(6,sz.y*.75),Dp=Math.min(48,Math.max(30,W*.8));const tray=new THREE.Group(),mat=M(0xf2f3f5,{roughness:.7}),th=1.4;
   const mk=(w,h,d,x,y,z)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);b.position.set(x,y,z);tray.add(b)};mk(W,th,Dp,0,-H/2,0);mk(th,H,Dp,-W/2,0,0);mk(th,H,Dp,W/2,0,0);mk(W,H,th,0,0,-Dp/2);
   if(Math.abs(n.x))tray.rotation.y=Math.PI/2;tray.position.copy(c).addScaledVector(n,-(Math.abs(n.x)?sz.x:sz.z)/2-Dp/2);tray.position.y=c.y-sz.y*.05;tray.visible=false;S.add(tray);T.tray=tray;T.t0=tray.position.clone();T.out=Math.min(38,Dp*.8)}
@@ -759,7 +798,7 @@ function applyThing(T){const e=T.t*T.t*(3-2*T.t);
  else{const q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-T.sign*e*1.35);T.L.forEach((o,i)=>{o.position.copy(T.p0[i]).sub(T.hinge).applyQuaternion(q).add(T.hinge);o.quaternion.copy(q).multiply(T.q0[i])})}}
 let thLast=performance.now();(function thAnim(){const now=performance.now(),dt=Math.min(.25,(now-thLast)/1000);thLast=now;for(const T of TH.values()){if(T.t!==T.target){const st=dt/.4;T.t=T.target>T.t?Math.min(T.target,T.t+st):Math.max(T.target,T.t-st);applyThing(T)}}requestAnimationFrame(thAnim)})();
 function closeThing(){for(const T of TH.values())T.target=0}
-function approach(m){const inf=m.userData.info,T0=TH.get(inf);
+function approach(m,noCard){const inf=m.userData.info,T0=TH.get(inf);
  if(T0&&T0.target===1){T0.target=0;if(!pop.hidden)closePop();return}   // second tap on an open drawer/door → close it
  if(ZOOMED){ZOOMED=false;FOV()}const L=itemSet(m)||[m];const f=frontOf(L);window.LASTF=f;
  const go=()=>{if(f&&kindOf(m)==="cargo"){closeThing();const T=thingOf(m,f.n);if(T)T.target=1;
@@ -768,8 +807,8 @@ function approach(m){const inf=m.userData.info,T0=TH.get(inf);
    const P=T2.clone().addScaledVector(f.n,95).addScaledVector(sd,105);P.y=150;setTimeout(()=>moveTo(P,T2.clone().sub(P).normalize(),false,()=>setTimeout(()=>openFor(m),150)),420);return}
   if(f){cam.updateMatrixWorld();const B=new THREE.Box3();L.forEach(o=>B.expandByObject(o));let need=0;const P=cam.position,dir=ctl.target.clone().sub(P).normalize(),up=new THREE.Vector3(0,1,0),rt=new THREE.Vector3().crossVectors(dir,up).normalize(),u2=new THREE.Vector3().crossVectors(rt,dir);
    for(const x of[B.min.x,B.max.x])for(const y of[B.min.y,B.max.y])for(const z of[B.min.z,B.max.z]){const v=new THREE.Vector3(x,y,z).sub(P);const dz=v.dot(dir);if(dz<5)continue;const ay=Math.atan(Math.abs(v.dot(u2))/dz)*2,ax=Math.atan(Math.abs(v.dot(rt))/dz)*2;need=Math.max(need,ay*180/Math.PI*1.08,2*Math.atan(Math.tan(ax/2)/cam.aspect)*180/Math.PI*1.08)}
-   if(need>cam.fov){cam.fov=Math.min(105,need);cam.updateProjectionMatrix();ZOOMED=true}}
-  const k=kindOf(m);if(k&&f){closeThing();const T=thingOf(m,f.n);if(T)T.target=1}setTimeout(()=>openFor(m),k?300:0)};
+  }
+  const k=kindOf(m);if(k&&f){closeThing();const T=thingOf(m,f.n);if(T)T.target=1}if(!noCard)setTimeout(()=>openFor(m),k?300:0)};
  if(!f){const D=new THREE.Box3().setFromObject(m).getCenter(new THREE.Vector3()).sub(cam.position);moveTo(cam.position.clone(),D.normalize(),false,go);return}
  moveTo(f.P,f.c.clone().sub(f.P).normalize(),false,go)}
 {const _cp2=closePop;closePop=function(){closeThing();_cp2()}}
@@ -787,7 +826,7 @@ function approach(m){const inf=m.userData.info,T0=TH.get(inf);
   const isFloor=h.point.y<6&&(!h.face||Math.abs(h.face.normal.clone().transformDirection(h.object.matrixWorld).y)>.8);
   const P0=cam.position.clone(),hp=h.point.clone(),hd=Math.hypot(hp.x-P0.x,hp.z-P0.z);
   const tgtA=(hs.find(x=>x.distance<h.distance+6&&x.object.userData.info)||h).object;
-  if(h.object.userData.door!=null)return;   // wardrobe doors: their own handler
+  if(h.object.userData.door!=null){const hd0=Math.hypot(h.point.x-cam.position.x,h.point.z-cam.position.z);if(hd0<200)return;e.stopPropagation();approach(h.object,true);return}   // wardrobe: walk up first, then a tap slides the door
   if(!isFloor&&tgtA.userData.info){e.stopPropagation();const T0=TH.get(tgtA.userData.info);if(T0&&T0.target===1){approach(tgtA);return}if(!pop.hidden)closePop();approach(tgtA);return}
   if(!isFloor&&hd<190)return;
   e.stopPropagation();
